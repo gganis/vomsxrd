@@ -2,33 +2,34 @@
 /*                                                                            */
 /*                X r d S e c g s i V O M S F u n . c c                       */
 /*                                                                            */
-/* (c) 2012, G. Ganis / CERN                                                  */
+/*  (C) 2013  G. Ganis, CERN                                                  */
 /*                                                                            */
-/* This file is part of the XRootD software suite.                            */
+/*  All rights reserved. The copyright holder's institutional names may not   */
+/*  be used to endorse or promote products derived from this software without */
+/*  specific prior written permission.                                        */
 /*                                                                            */
-/* XRootD is free software: you can redistribute it and/or modify it under    */
-/* the terms of the GNU Lesser General Public License as published by the     */
-/* Free Software Foundation, either version 3 of the License, or (at your     */
-/* option) any later version.                                                 */
+/*  This file is part of the VOMS extraction XRootD plug-in software suite,   */
+/*  here after called VOMS-XRootD (see https://github.com/gganis/voms).       */
 /*                                                                            */
-/* XRootD is distributed in the hope that it will be useful, but WITHOUT      */
-/* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or      */
-/* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public       */
-/* License for more details.                                                  */
+/*  VOMS-XRootD is free software: you can redistribute it and/or modify it    */
+/*  under the terms of the GNU Lesser General Public License as published by  */
+/*  the Free Software Foundation, either version 3 of the License, or (at     */
+/*  your option) any later version.                                           */
 /*                                                                            */
-/* You should have received a copy of the GNU Lesser General Public License   */
-/* along with XRootD in a file called COPYING.LESSER (LGPL license) and file  */
-/* COPYING (GPL license).  If not, see <http://www.gnu.org/licenses/>.        */
+/*  VOMS-XRootD is distributed in the hope that it will be useful, but        */
+/*  WITHOUT ANY WARRANTY, not even the implied warranty of MERCHANTABILITY or */
+/*  FITNESS FOR A PARTICULAR PURPOSE.                                         */
+/*  See the GNU Lesser General Public License for more details.               */
 /*                                                                            */
-/* The copyright holder's institutional names and contributor's names may not */
-/* be used to endorse or promote products derived from this software without  */
-/* specific prior written permission of the institution or contributor.       */
+/*  You should have received a copy of the GNU Lesser General Public License  */
+/*  along with VOMS-XRootD in a file called COPYING.LGPL (LGPL license) and   */
+/*  file COPYING (GPL license). If not, see <http://www.gnu.org/licenses/>.   */
 /*                                                                            */
 /******************************************************************************/
 
 /******************************************************************************/
 /*                                                                            */
-/*  See README.VOMS for hints about usage of this library                     */
+/*  See README.md for hints about usage of this library                       */
 /*                                                                            */
 /******************************************************************************/
 
