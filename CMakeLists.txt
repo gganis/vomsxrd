@@ -29,7 +29,8 @@ include( vomsxrdOSDefs )
 #-------------------------------------------------------------------------------
 # VOMS libs required
 #-------------------------------------------------------------------------------
-find_package( VOMSLibs REQUIRED)
+find_package( VOMS REQUIRED)
+find_package( XRootD REQUIRED)
 
 #-------------------------------------------------------------------------------
 # Build in subdirectories

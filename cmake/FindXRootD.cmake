@@ -8,11 +8,11 @@ else()
 
   find_path(
     XROOTD_INCLUDE_DIR
-    NAMES xrootd/XrdVersion.hh
+    NAMES XrdVersion.hh
     HINTS
     ${XROOTD_ROOT_DIR}
     PATH_SUFFIXES
-    include )
+    include/xrootd )
   set( XROOTD_INCLUDE_DIRS ${XROOTD_INCLUDE_DIR})
 
   find_library(

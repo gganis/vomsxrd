@@ -4,6 +4,7 @@
 #-------------------------------------------------------------------------------
 
 include_directories( ${VOMS_INCLUDE_DIR} )
+include_directories( ${XROOTD_INCLUDE_DIR} )
 include( vomsxrdCommon )
 
 #-------------------------------------------------------------------------------
@@ -15,7 +16,7 @@ set( XRD_SEC_GSI_VOMS_SOVERSION  0 )
 add_library(
    XrdSecgsiVOMS
    SHARED
-   src/XrdSecgsiVOMSFun.cc )
+   ${CMAKE_SOURCE_DIR}/src/XrdSecgsiVOMSFun.cc )
 
 target_link_libraries(
    XrdSecgsiVOMS
@@ -37,6 +38,7 @@ install(
    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
-install_headers(
-   ${CMAKE_INSTALL_INCLUDEDIR}/xrootd
-   src/XrdSecgsiVOMS.hh )
+install(
+   FILES
+   ${CMAKE_SOURCE_DIR}/src/XrdSecgsiVOMS.hh
+   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xrootd/XrdSecgsi )

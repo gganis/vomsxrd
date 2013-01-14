@@ -38,7 +38,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "XrdSecgsi/XrdSecgsiVOMS.hh"
+#include "XrdSecgsiVOMS.hh"
 
 #include "XrdCrypto/XrdCryptosslAux.hh"
 #include "XrdCrypto/XrdCryptosslgsiAux.hh"

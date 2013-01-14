@@ -28,22 +28,37 @@
   
        /afs/cern.ch/sw/lcg/external/Grid/voms/<version>/<arch-compiler>/lib
 
-  *** THIS REFERS TO THE INTEGRATION IN THE XROOTD BUILD SYSTEM ***
-  *** NEEDS UPDATE FOR STANDALONE ***
-       
   In order to build the plugin the VOMS installation must be passed via the switch
   VOMS_ROOT_DIR, e.g.
   
        -DVOMS_ROOT_DIR=/afs/cern.ch/sw/lcg/external/Grid/voms/2.0.8-1/x86_64-slc6-gcc46-opt
-       
-  The cmake output should contain the line
+
+  The other dependency is of course XRootD, which is defined by the switch XROOTD_ROOT_DIR, e.g.
   
-  -- VOMS API support:  yes
-
-  in the summary if everything is OK.
-
-  *** END OF THE OBSOLETE PART ***
-
+       -DXROOTD_ROOT_DIR=/afs/cern.ch/sw/lcg/external/xrootd/3.2.7/x86_64-slc6-gcc46-opt
+          
+  The output of a successful run of cmake should look something like
+  
+-- The C compiler identification is GNU
+-- The CXX compiler identification is GNU
+-- Check for working C compiler: /usr/bin/gcc
+-- Check for working C compiler: /usr/bin/gcc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Found VOMS: /afs/cern.ch/sw/lcg/external/Grid/voms/2.0.8-1/x86_64-slc6-gcc46-opt/lib64/libvomsapi.so 
+-- Found XROOTD: /afs/cern.ch/sw/lcg/external/xrootd/3.2.7/x86_64-slc6-gcc46-opt/lib64/libXrdCryptossl.so 
+-- ----------------------------------------
+-- Installation path: /home/ganis/local/xrootd/voms/install
+-- Build type:        RELEASE
+-- ----------------------------------------
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ganis/local/xrootd/voms/build
+    
   
   At runtime the path with libvomsapi.so must be in the library search path, which must
   also contain the openssl libraries.
@@ -115,7 +130,7 @@
    in other plug-ins.
  
  -------------------------------------------------------------------------------------------------------------
- (GG, 6 Jan 2013). 
+ (GG, 14 Jan 2013). 
 
 
   
