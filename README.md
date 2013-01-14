@@ -64,25 +64,33 @@
   also contain the openssl libraries.
   Check with ldd that all dependencies are resolved:
 
-  $ ldd /home/ganis/local/xrootd/install_cmake/lib/libXrdSecgsiVOMS.so
-        linux-vdso.so.1 =>  (0x00007fffb76d9000)
-        libXrdSecgsi.so.0 => /home/ganis/local/xrootd/install_cmake/lib/libXrdSecgsi.so.0 (0x00007f6de7784000)
-        libXrdCryptossl.so.1 => /home/ganis/local/xrootd/install_cmake/lib/libXrdCryptossl.so.1 (0x00007f6de755a000)
-        libXrdCrypto.so.0 => /home/ganis/local/xrootd/install_cmake/lib/libXrdCrypto.so.0 (0x00007f6de733f000)
-        libXrdUtils.so.1 => /home/ganis/local/xrootd/install_cmake/lib/libXrdUtils.so.1 (0x00007f6de70d1000)
-        libvomsapi.so.1 => /afs/cern.ch/sw/lcg/external/Grid/voms/2.0.8-1/x86_64-slc6-gcc46-opt/lib64/libvomsapi.so.1 (0x00007f6de6e6d000)
-        libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f6de6b55000)
-        libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f6de693f000)
-        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f6de657f000)
-        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f6de6362000)
-        libssl.so.1.0.0 => /opt/openssl/openssl-1.0.0j/lib/libssl.so.1.0.0 (0x00007f6de6106000)
-        libcrypto.so.1.0.0 => /opt/openssl/openssl-1.0.0j/lib/libcrypto.so.1.0.0 (0x00007f6de5d4b000)
-        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f6de5b47000)
-        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f6de593f000)
-        libexpat.so.1 => /lib/x86_64-linux-gnu/libexpat.so.1 (0x00007f6de5714000)
-        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f6de5418000)
-        /lib64/ld-linux-x86-64.so.2 (0x00007f6de7bb7000)
-
+ $ ldd /afs/cern.ch/user/g/ganis/work/public/vomsxrd/vomsxrd-0.0.1/slc6/lib64/libXrdSecgsiVOMS.so 
+        linux-vdso.so.1 =>  (0x00007fff6532a000)
+        /$LIB/snoopy.so => /lib64/snoopy.so (0x00007f6fb6bd4000)
+        libXrdCryptossl.so.1 => /afs/cern.ch/sw/lcg/external/xrootd/3.2.7/x86_64-slc6-gcc46-opt/lib64/libXrdCryptossl.so.1 (0x00007f6fb69ab000)
+        libvomsapi.so.1 => /afs/cern.ch/sw/lcg/external/Grid/voms/2.0.8-1/x86_64-slc6-gcc46-opt/lib64/libvomsapi.so.1 (0x00007f6fb6748000)
+        libstdc++.so.6 => /afs/cern.ch/sw/lcg/contrib/gcc/4.6.3/x86_64-slc6/lib64/libstdc++.so.6 (0x00007f6fb6444000)
+        libm.so.6 => /lib64/libm.so.6 (0x00007f6fb618d000)
+        libgcc_s.so.1 => /afs/cern.ch/sw/lcg/contrib/gcc/4.6.3/x86_64-slc6/lib64/libgcc_s.so.1 (0x00007f6fb5f78000)
+        libc.so.6 => /lib64/libc.so.6 (0x00007f6fb5be5000)
+        libdl.so.2 => /lib64/libdl.so.2 (0x00007f6fb59e0000)
+        libXrdCrypto.so.0 => /afs/cern.ch/sw/lcg/external/xrootd/3.2.7/x86_64-slc6-gcc46-opt/lib64/libXrdCrypto.so.0 (0x00007f6fb57c6000)
+        libXrdUtils.so.1 => /afs/cern.ch/sw/lcg/external/xrootd/3.2.7/x86_64-slc6-gcc46-opt/lib64/libXrdUtils.so.1 (0x00007f6fb5563000)
+        libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f6fb5345000)
+        libssl.so.10 => /usr/lib64/libssl.so.10 (0x00007f6fb50ea000)
+        libcrypto.so.10 => /usr/lib64/libcrypto.so.10 (0x00007f6fb4d50000)
+        libexpat.so.1 => /lib64/libexpat.so.1 (0x00007f6fb4b27000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f6fb6fde000)
+        librt.so.1 => /lib64/librt.so.1 (0x00007f6fb491f000)
+        libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 (0x00007f6fb46dc000)
+        libkrb5.so.3 => /lib64/libkrb5.so.3 (0x00007f6fb43fd000)
+        libcom_err.so.2 => /lib64/libcom_err.so.2 (0x00007f6fb41f9000)
+        libk5crypto.so.3 => /lib64/libk5crypto.so.3 (0x00007f6fb3fcc000)
+        libz.so.1 => /lib64/libz.so.1 (0x00007f6fb3db6000)
+        libkrb5support.so.0 => /lib64/libkrb5support.so.0 (0x00007f6fb3bab000)
+        libkeyutils.so.1 => /lib64/libkeyutils.so.1 (0x00007f6fb39a7000)
+        libresolv.so.2 => /lib64/libresolv.so.2 (0x00007f6fb378d000)
+        libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f6fb356d000)
 
    2. Configuration
       -------------
