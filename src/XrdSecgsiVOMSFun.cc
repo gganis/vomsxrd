@@ -39,6 +39,7 @@
 #include <errno.h>
 
 #include "XrdSecgsiVOMS.hh"
+#include "XrdSecgsiVOMSTrace.hh"
 
 #include "XrdCrypto/XrdCryptosslAux.hh"
 #include "XrdCrypto/XrdCryptosslgsiAux.hh"
@@ -47,10 +48,8 @@
 #include "XrdOuc/XrdOucHash.hh"
 #include "XrdOuc/XrdOucString.hh"
 #include "XrdSec/XrdSecEntity.hh"
-#include "XrdSecgsi/XrdSecgsiTrace.hh"
 #include "XrdSut/XrdSutBucket.hh"
-
-extern XrdOucTrace *gsiTrace;
+#include "XrdSys/XrdSysLogger.hh"
 
 #ifndef SafeFree
 #define SafeFree(x) { if (x) free(x) ; x = 0; }
@@ -65,6 +64,8 @@ static XrdOucHash<int> gGrps;                  //  hash table with grps=grp1[,gr
 static XrdOucHash<int> gVOs;                   //  hash table with vos=vo1[,vo2,...]
 static bool gDebug = 0;                        //  Verbosity control
 static XrdOucString gRequire;                   //  String with configuration options
+static XrdSysError gDest(0, "secgsiVOMS_");
+static XrdSysLogger gLogger;
 
 #define VOMSDBG(m) \
    if (gDebug) { \
@@ -271,6 +272,9 @@ int XrdSecgsiVOMSInit(const char *cfg)
    //         dbg                    To force verbose mode
    //
    EPNAME("VOMSInit");
+
+   gDest.logger(&gLogger);
+   gsiVOMSTrace = new XrdOucTrace(&gDest);
 
    XrdOucString oos(cfg);
 
