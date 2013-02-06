@@ -89,7 +89,7 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
 {
    // Implementation of XrdSecgsiAuthzFun extracting the information from the 
    // proxy chain in entity.creds
-   EPNAME("VOMSFun");
+   EPNAME("Fun");
 
    vomsdata v;
    X509 *pxy = 0;
@@ -217,10 +217,10 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
       SafeFree(ent.grps);
       SafeFree(ent.role);
       SafeFree(ent.endorsements);
-      if (vo.length() > 0 && grps.length() > 0) {
+      if (vo.length() > 0 && (gGrpSel == 0 || grps.length() > 0)) {
          ent.vorg = strdup(vo.c_str());
          // Save the groups
-         ent.grps = strdup(grps.c_str());
+         if (grps.length() > 0) ent.grps = strdup(grps.c_str());
          if (role.length() > 0) ent.role = strdup(role.c_str());
          // Save the whole string in endorsements
          if (endor.length() > 0) ent.endorsements = strdup(endor.c_str());
@@ -237,8 +237,12 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
       sk_X509_free(stk);
    }
    
+   // Success or failure?
+   int rc = !ent.vorg ? -1 : 0;
+   if (rc == 0 && gGrpSel == 1 && !ent.grps) rc = -1;
+   
    // Done
-   return (!ent.vorg ? -1 : 0);
+   return rc;
 }}
 
 //
@@ -271,7 +275,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
    //         vos=vo1[,vo2,...]      VOs to be considered; the first match is taken
    //         dbg                    To force verbose mode
    //
-   EPNAME("VOMSInit");
+   EPNAME("Init");
 
    gDest.logger(&gLogger);
    gsiVOMSTrace = new XrdOucTrace(&gDest);
