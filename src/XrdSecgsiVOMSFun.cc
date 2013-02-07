@@ -177,11 +177,11 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
       extfound = 1;
       std::vector<voms>::iterator i = v.data.begin();
       for ( ; i != v.data.end(); i++) {
+         VOMSDBG("found VO: " << (*i).voname);
+         // Filter the VO? (*i) is voms
+         if (gVOs.Num() > 0 && !gVOs.Find((*i).voname.c_str())) continue;
+         // Save VO name
          vo = (*i).voname.c_str();
-         VOMSDBG("found VO: " << vo);
-         // Filter the VO?
-         if (gVOs.Num() > 0 && !gVOs.Find(vo.c_str())) continue;
-         // (*i) is voms
          std::vector<data> dat = (*i).std;
          std::vector<data>::iterator idat = dat.begin();
          grps = ""; role = "";
@@ -374,7 +374,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
          PRINT("+++ group(s):      <not specified>");
       }
    }
-   if (voss.length() > 0) PRINT("+++ VO(s):        "<< voss);
+   if (gVOs.Num() > 0) PRINT("+++ VO(s):        "<< voss);
    PRINT("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
    // Done
    return gCertFmt;
