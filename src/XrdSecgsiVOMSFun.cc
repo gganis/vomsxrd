@@ -41,14 +41,16 @@
 #include "XrdSecgsiVOMS.hh"
 #include "XrdSecgsiVOMSTrace.hh"
 
+#ifdef HAVE_XRDCRYPTO
 #include "XrdCrypto/XrdCryptosslAux.hh"
 #include "XrdCrypto/XrdCryptosslgsiAux.hh"
 #include "XrdCrypto/XrdCryptoX509.hh"
 #include "XrdCrypto/XrdCryptoX509Chain.hh"
+#include "XrdSut/XrdSutBucket.hh"
+#endif
 #include "XrdOuc/XrdOucHash.hh"
 #include "XrdOuc/XrdOucString.hh"
 #include "XrdSec/XrdSecEntity.hh"
-#include "XrdSut/XrdSutBucket.hh"
 #include "XrdSys/XrdSysLogger.hh"
 
 #ifndef SafeFree
@@ -57,7 +59,11 @@
 
 //
 // These settings are configurable
-static int gCertFmt = 0;                       //  certfmt:raw|pem [raw]
+#ifdef HAVE_XRDCRYPTO
+static int gCertFmt = 0;                       //  certfmt:raw|pem|x509 [raw]
+#else
+static int gCertFmt = 1;                       //  certfmt:pem|x509 [pem]
+#endif
 static int gGrpSel = 0;                        //  grpopt's sel = 0|1 [0]
 static int gGrpWhich = 1;                      //  grpopt's which = 0|1 [1]
 static XrdOucHash<int> gGrps;                  //  hash table with grps=grp1[,grp2,...]
@@ -66,6 +72,23 @@ static bool gDebug = 0;                        //  Verbosity control
 static XrdOucString gRequire;                   //  String with configuration options
 static XrdSysError gDest(0, "secgsiVOMS_");
 static XrdSysLogger gLogger;
+
+//
+// Function to convert X509_NAME into a one-line human readable string
+static void NameOneLine(X509_NAME *nm, XrdOucString &s)
+{
+   BIO *mbio = BIO_new(BIO_s_mem());
+   X509_NAME_print_ex(mbio, nm, 0, XN_FLAG_COMPAT);
+   char *data = 0;
+   long len = BIO_get_mem_data(mbio, &data);
+   s = "/";
+   s.insert(data, 1, len);
+   BIO_free(mbio);
+   s.replace(", ", "/");
+
+   // Done
+   return;
+}
 
 #define VOMSDBG(m) \
    if (gDebug) { \
@@ -76,7 +99,7 @@ static XrdSysLogger gLogger;
 #define VOMSDBGSUBJ(m, c) \
    if (gDebug) { \
       XrdOucString subject; \
-      XrdCryptosslNameOneLine(X509_get_subject_name(c), subject); \
+      NameOneLine(X509_get_subject_name(c), subject); \
       PRINT(m << subject); \
    }
 
@@ -97,6 +120,7 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
    bool freestk = 1;
    
    if (gCertFmt == 0) {
+#ifdef HAVE_XRDCRYPTO
       //
       // RAW format
       //
@@ -124,6 +148,13 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
          }
          xxp = c->Next();
       }
+#else
+      //
+      // Do not have support for RAW format
+      //
+      PRINT("ERROR: compiled without support for RAW format! Re-run with 'certfmt=pem'");
+      return -1;
+#endif
    } else if (gCertFmt == 1) {
       //
       // PEM format
@@ -291,7 +322,15 @@ int XrdSecgsiVOMSInit(const char *cfg)
          XrdOucString fmt(oos, ifmt + strlen("certfmt="));
          fmt.erase(fmt.find(' '));
          if (fmt == "raw") {
+#ifdef HAVE_XRDCRYPTO
             gCertFmt = 0;
+#else
+            //
+            // Do not have support for RAW format
+            //
+            PRINT("WARNING: support for RAW format not available: forcing PEM");
+            gCertFmt = 1;
+#endif
          } else if (fmt == "pem") {
             gCertFmt = 1;
          } else if (fmt == "x509") {

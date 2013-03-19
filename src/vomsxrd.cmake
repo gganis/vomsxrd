@@ -4,7 +4,8 @@
 #-------------------------------------------------------------------------------
 
 include_directories( ${VOMS_INCLUDE_DIR} )
-include_directories( ${XROOTD_INCLUDE_DIR} )
+include_directories( ${XROOTD_INCLUDE_DIR} ${XRDCRYPTO_INCLUDE_DIR})
+add_definitions(${XROOTD_CFLAGS})
 include( vomsxrdCommon )
 
 #-------------------------------------------------------------------------------
