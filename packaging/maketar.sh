@@ -22,16 +22,19 @@ function findProg()
 function printHelp()
 {
   echo "Usage:"                                              1>&2
-  echo "${0} [--help] [--output PATH]"                       1>&2
+  echo "${0} [--help] [--output PATH] [--prefix PREFIX]"     1>&2
   echo "  --help        prints this message"                 1>&2
-  echo "  --output PATH the directory where the tarball"     1>&2
-  echo "                should be stored, defaulting to .."  1>&2
+  echo "  --output PATH tarball file"                        1>&2
+  echo "                default: ../vomsxrd-<vers>.tar.gz"   1>&2
+  echo "  --prefix PREFIX Prepend PREFIX/ to each filename"  1>&2
+  echo "                in the archive [vomsxrd-<vers>]"     1>&2
 }
 
 #-------------------------------------------------------------------------------
 # Parse the commandline, if only we could use getopt... :(
 #-------------------------------------------------------------------------------
-OUTDIR=".."
+OUTFILE=".."
+PREFIX=""
 PRINTHELP=0
 
 while test ${#} -ne 0; do
@@ -42,7 +45,14 @@ while test ${#} -ne 0; do
       echo "--output parameter needs an argument" 1>&2
       exit 1
     fi
-    OUTDIR=${2}
+    OUTFILE=${2}
+    shift
+  elif test x${1} = x--prefix; then
+    if test ${#} -lt 2; then
+      echo "--prefix parameter needs an argument" 1>&2
+      exit 1
+    fi
+    PREFIX=${2}
     shift
   fi
   shift
@@ -81,17 +91,22 @@ VRL=`echo $VERSION | sed "s|\(.*\)\-\(.*\)\-\(.*\)|\2|"`
 # Exact tag?
 if test x$VRL == x0 ; then
    VERSIONS=$VTG
-   TREE="`git describe --tags --abbrev=0`"
 else
    VERSIONS=`echo $VERSION | sed "s|\(.*\)\-\(.*\)\-\(.*\)|\1-\3|"`
-   TREE="HEAD"
+fi
+COMMIT=`git log --pretty=format:"%H" -1`
+if test x$PREFIX == x ; then
+   PREFIX="vomsxrd-$VERSIONS"
+fi
+if test x$OUTFILE == x.. ; then
+   OUTFILE="../vomsxrd-$VERSIONS.tar.gz"
 fi
 
 #-------------------------------------------------------------------------------
 # Unpack in dedicated temporary directory
 #-------------------------------------------------------------------------------
 TEMPDIR=`mktemp -d /tmp/vomsxrd.srpm.XXXXXXXXXX`
-git archive --prefix=vomsxrd-$VERSIONS/ --format=tar $TREE -o $TEMPDIR/vomsxrd-$VERSIONS.tar
+git archive --prefix="$PREFIX/" --format=tar $COMMIT -o $TEMPDIR/vomsxrd-$VERSIONS.tar
 if test $? -ne 0; then
   echo "[!] Unable to create first archive" 1>&2
   exit 3
@@ -99,18 +114,23 @@ fi
 CWD=$PWD
 cd $TEMPDIR
 tar xf $TEMPDIR/vomsxrd-$VERSIONS.tar
-echo "Tag: $VERSION" >> $TEMPDIR/vomsxrd-$VERSIONS/VERSION_INFO
+echo "Tag: $VERSION" >> $TEMPDIR/$PREFIX/VERSION_INFO
+rm -fr $TEMPDIR/$PREFIX/.gitattributes
 rm -fr $TEMPDIR/vomsxrd-$VERSIONS.tar
-tar cf $TEMPDIR/vomsxrd-$VERSIONS.tar vomsxrd-$VERSIONS
+tar cf $TEMPDIR/vomsxrd-$VERSIONS.tar $PREFIX
+if test $? -ne 0; then
+  echo "[!] Unable to create new archive" 1>&2
+  exit 4
+fi
 gzip -9fn $TEMPDIR/vomsxrd-$VERSIONS.tar
 cd $CWD
-mv $TEMPDIR/vomsxrd-$VERSIONS.tar.gz $OUTDIR/vomsxrd-$VERSIONS.tar.gz
+mv $TEMPDIR/vomsxrd-$VERSIONS.tar.gz $OUTFILE
 rm -fr $TEMPDIR
 
-if test -f $OUTDIR/vomsxrd-$VERSIONS.tar.gz ; then
-  echo "[I] Tarball $OUTDIR/vomsxrd-$VERSIONS.tar.gz successfully created"
+if test -f $OUTFILE ; then
+  echo "[I] Tarball $OUTFILE successfully created"
 else
   echo "[!] Unable to create tarball" 1>&2
-  exit 4
+  exit 5
 fi
 exit 0
