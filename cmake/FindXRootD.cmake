@@ -24,23 +24,12 @@ else()
 
    if (XROOTD_INCLUDE_DIR)
       # Check for XrdCrypto headers
-      find_path(XRDCRYPTO_INCLUDE_DIR
-         NAMES
-         XrdCrypto/XrdCryptosslAux.hh
-         XrdCrypto/XrdCryptosslgsiAux.hh
-         XrdCrypto/XrdCryptoX509.hh
-         XrdCrypto/XrdCryptoX509Chain.hh
-         XrdSut/XrdSutBucket.hh
-         PATHS 
-         ${XROOTD_CRYPTO_INCLUDE_DIR}
-         ${XROOTD_INCLUDE_DIR}
-         ${XROOTD_INCLUDE_DIR}/private )
-
       foreach(i XrdCrypto/XrdCryptosslAux.hh XrdCrypto/XrdCryptosslgsiAux.hh XrdCrypto/XrdCryptoX509.hh
                 XrdCrypto/XrdCryptoX509Chain.hh XrdSut/XrdSutBucket.hh)
          find_path(XRDCRYPTO_INCLUDE_DIR_${i}
             NAMES ${i} 
             PATHS 
+            ${vomsxrd_SOURCE_DIR}/src
             ${XROOTD_CRYPTO_INCLUDE_DIR}
             ${XROOTD_INCLUDE_DIR}
             ${XROOTD_INCLUDE_DIR}/private )
