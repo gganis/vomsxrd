@@ -63,14 +63,9 @@ if test ! -d ${SOURCEPATH}.git; then
   # The version file exists and seems to be valid so we know the version
   #----------------------------------------------------------------------------
   else
-    REFNAMES="`grep RefNames ${SOURCEPATH}VERSION_INFO`"
-    VERSION="`getVersionFromRefs "$REFNAMES"`"
-    if test x$VERSION == xunknown; then
-      SHORTHASH="`grep ShortHash ${SOURCEPATH}VERSION_INFO`"
-      SHORTHASH=${SHORTHASH/ShortHash:/}
-      SHORTHASH=${SHORTHASH// /}
-      VERSION="`git describe $SHORTHASH`"
-    fi
+     TAG="`grep Tag ${SOURCEPATH}VERSION_INFO`"
+     TAG=$TAG/Tag:/}
+     VERSION=${TAG// /}
   fi
 
 #-------------------------------------------------------------------------------
@@ -136,15 +131,19 @@ if test ! x$VERSION == xunknown; then
    VPT=`echo $VTG | sed "s|\([0-9]\)\.\([0-9]\)\.\([0-9]\)|\3|"`
    if test x$VMJ == x0 ; then
       if test x$VMN == x0 ; then
-         NUMVERSION=`printf "%d%01d\n" $VPT $VRL`
+         NUMVERSION=`printf "%d%01d" $VPT $VRL`
       else
-         NUMVERSION=`printf "%d%02d%01d\n" $VMN $VPT $VRL`
+         NUMVERSION=`printf "%d%02d%01d" $VMN $VPT $VRL`
       fi
    else
-      NUMVERSION=`printf "%d%02d%02d%01d\n" $VMJ $VMN $VPT $VRL`
+      NUMVERSION=`printf "%d%02d%02d%01d" $VMJ $VMN $VPT $VRL`
    fi
    # The string
-   VERSIONS=`printf "v%d.%d.%d-%s\n" $VMJ $VMN $VPT $VCM`
+   if test x$VCM == x || test x$VRL == x0 ; then
+      VERSIONS=`printf "v%d.%d.%d" $VMJ $VMN $VPT`
+   else
+      VERSIONS=`printf "v%d.%d.%d-%s" $VMJ $VMN $VPT $VCM`
+   fi
 fi
 
 #-------------------------------------------------------------------------------
