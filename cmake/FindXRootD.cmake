@@ -29,7 +29,7 @@ else()
          find_path(XRDCRYPTO_INCLUDE_DIR_${i}
             NAMES ${i} 
             PATHS 
-            ${vomsxrd_SOURCE_DIR}/src
+            ${CMAKE_SOURCE_DIR}/src
             ${XROOTD_CRYPTO_INCLUDE_DIR}
             ${XROOTD_INCLUDE_DIR}
             ${XROOTD_INCLUDE_DIR}/private )
