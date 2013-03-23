@@ -64,7 +64,7 @@ if test ! -d ${SOURCEPATH}.git; then
   #----------------------------------------------------------------------------
   else
      TAG="`grep Tag ${SOURCEPATH}VERSION_INFO`"
-     TAG=$TAG/Tag:/}
+     TAG=${TAG/Tag:/}
      VERSION=${TAG// /}
   fi
 
