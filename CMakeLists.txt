@@ -25,6 +25,22 @@ set( CMAKE_MODULE_PATH
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 include( vomsxrdOSDefs )
+#-------------------------------------------------------------------------------
+# Generate the version header
+#-------------------------------------------------------------------------------
+add_custom_target(
+  XrdSecgsiVOMSVers.hh
+  ${CMAKE_SOURCE_DIR}/genversion.sh ${CMAKE_SOURCE_DIR} )
+# sigh, yet another ugly hack :(
+macro( add_library _target )
+  _add_library( ${_target} ${ARGN} )
+  add_dependencies( ${_target} XrdSecgsiVOMSVers.hh )
+endmacro()
+
+macro( add_executable _target )
+  _add_executable( ${_target} ${ARGN} )
+  add_dependencies( ${_target} XrdSecgsiVOMSVers.hh )
+endmacro()
 
 #-------------------------------------------------------------------------------
 # VOMS libs required
