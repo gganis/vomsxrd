@@ -43,4 +43,4 @@ install(
    FILES
    ${CMAKE_BINARY_DIR}/src/XrdSecgsiVOMSVers.hh
    ${CMAKE_SOURCE_DIR}/src/XrdSecgsiVOMS.hh
-   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xrootd/XrdSecgsi )
+   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vomsxrd )
