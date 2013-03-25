@@ -37,6 +37,16 @@ Requires: xrootd-libs >= 3.2.7
 The VOMS attribute extractor plug-in for XRootD
 
 #-------------------------------------------------------------------------------
+# devel
+#-------------------------------------------------------------------------------
+%package devel
+Summary: Headers for using the VOMS attribute extractor plug-in
+Group:   System Environment/Libraries
+Requires: %{name} = %{epoch}:%{version}-%{release}
+%description devel
+Headers for using the VOMS attribute extractor plug-in
+
+#-------------------------------------------------------------------------------
 # Build instructions
 #-------------------------------------------------------------------------------
 %prep
@@ -80,10 +90,11 @@ rm -rf $RPM_BUILD_ROOT
 %files 
 %defattr(-,root,root,-)
 %{_libdir}/libXrdSecgsiVOMS.so*
-
-# %{_includedir}/%{name}
-
 %doc %{_mandir}/man1/libXrdSecgsiVOMS.1.gz
+
+%files devel
+%defattr(-,root,root,-)
+%{_includedir}/%{name}
 
 #-------------------------------------------------------------------------------
 # Changelog
