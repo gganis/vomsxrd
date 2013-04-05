@@ -1,0 +1,164 @@
+Content-type: text/html
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of libXrdSecgsiVOMS</TITLE>
+</HEAD><BODY>
+<H1>libXrdSecgsiVOMS</H1>
+Section: User Commands  (1)<BR>Updated: 25 March 2013<BR><A HREF="#index">Index</A>
+<A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+libXrdSecgsiVOMS - XRootD plug-in to extract VOMS attributes
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<PRE>
+
+sec.protparm gsi -vomsfun:<B>libXrdSecgsiVOMS.so</B>
+sec.protparm gsi -vomsfunparms:<I>options</I>
+
+</PRE><A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The <B>libXrdSecgsiVOMS</B> plug-in provides an implementation of the
+<P>
+<PRE>
+int XrdSecgsiVOMSFun(XrdSecEntity &amp;ent)
+int XrdSecgsiVOMSInit(const char *cfg)
+
+functions making use of the official VOMS API libraries to validate and extract the VOMS attributes from a VOMS proxy.
+
+</PRE><A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options are available:
+<P>
+<B>certfmt={raw,pem,x509}</B>
+<DL COMPACT><DT><DD>
+Certificate format: 'raw' to be used with XrdCrypto tools; 'pem' PEM base64 format (as in cert files);
+
+</DL>
+
+<P>
+<B>groupopt=opt</B>
+<DL COMPACT><DT><DD>
+What to do with the group names; defined as opt = sel * 10 + which, with 'sel' either <B>0</B> (consider all those present)
+or <B>1</B> (select among those specified by the 'grps' option; see below), and 'which' either <B>0</B> (take the first one)
+or <B>1</B> (take the last).
+</DL>
+
+<P>
+<B>grps=grp1[,grp2,...]</B>
+<DL COMPACT><DT><DD>
+Group(s) for which the information is extracted; if specified the grpopt 'sel' is set to 1 regardless of the setting; see NOTES below.
+</DL>
+
+<P>
+<B>vos=vo1[,vo2,...]</B>
+<DL COMPACT><DT><DD>
+VOs to be considered; the first match is taken; see NOTES below.
+</DL>
+
+<P>
+<B>dbg</B>
+<DL COMPACT><DT><DD>
+Force verbose mode.
+</DL>
+
+<P>
+Multiple options can be specified separated by '|<B>'.
+<P>
+</B><A NAME="lbAF">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+Specifying 'grps' or 'vos' options forces a failure if the requested group and/or VO is not found. In this regard, this plug-in may
+act as a sort of authorization filter. Note that most refined authorization based on VOMS information may be achieved using
+the <B>libXrdSecgsiAuthzVO</B> plug-in distributed with XRootD.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+The following example shows how configure the plugin to select VO=cms, select the first group, use the PEM format for the proxy
+and switch on debugging; it shows also how to specify multiple options, either on the same line or on multiple lines.
+<DL COMPACT><DT><DD>
+<P>
+<PRE>
+sec.protparm gsi -vomsfun:libXrdSecgsiVOMS.so
+sec.protparm gsi -vomsfunparms:grpopt=0|vos=cms|certfmt=pem
+sec.protparm gsi -vomsfunparms:dbg
+
+</DL>
+</PRE><A NAME="lbAH">&nbsp;</A>
+<H2>FILES</H2>
+
+The plug-in files are
+<PRE>
+
+libXrdSecgsiVOMS.so
+libXrdSecgsiVOMS.so.1
+libXrdSecgsiVOMS.so.1.0.0
+
+and are typically available under <B>/usr/lib</B> or <B>/usr/lib64</B>.
+
+
+</PRE><A NAME="lbAI">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+The environment <B>X509_VOMS_DIR</B> must be set to a valid directory; this is typically <B>/etc/grid-security/vomsdir</B>.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+The <B>libXrdSecgsiVOMS</B> plug-in requires <B>libvomsapi.so</B> and the openssl libraries. In case of load failuer it may be
+useful to check with ldd if all the required dependencies are correctly resolved.
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>LICENSE</H2>
+
+LGPL; see <A HREF="http://www.gnu.org/licenses/.">http://www.gnu.org/licenses/.</A>
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>AUTHOR AND SUPPORT</H2>
+
+The <B>libXrdSecgsiVOMS</B> plug-in has been implemented by Gerardo Ganis (<A HREF="mailto:Gerardo.Ganis@cern.ch">Gerardo.Ganis@cern.ch</A>).
+Any request for support should addressed via the project main web site
+<CENTER>
+<A HREF="https://github.com/gganis/vomsxrd">https://github.com/gganis/vomsxrd</A><BR>
+</CENTER>
+
+<P>
+or via the XRootD support site
+<CENTER>
+<A HREF="https://github.com/xrootd/xrootd">https://github.com/xrootd/xrootd</A><BR>
+</CENTER>
+
+<P>
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">NOTES</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">FILES</A><DD>
+<DT><A HREF="#lbAI">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAJ">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAK">LICENSE</A><DD>
+<DT><A HREF="#lbAL">AUTHOR AND SUPPORT</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 14:22:47 GMT, April 05, 2013
+</BODY>
+</HTML>
