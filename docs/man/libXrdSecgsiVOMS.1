@@ -1,4 +1,4 @@
-.TH libXrdSecgsiVOMS 1 "25 March 2013"
+.TH libXrdSecgsiVOMS 1 "12 August 2014"
 .SH NAME
 libXrdSecgsiVOMS - XRootD plug-in to extract VOMS attributes
 .SH SYNOPSIS
@@ -21,25 +21,25 @@ The following options are available:
 
 \fBcertfmt={raw,pem,x509}\fR
 .RS 2
-Certificate format: 'raw' to be used with XrdCrypto tools; 'pem' PEM base64 format (as in cert files);
-'x509', as a STACK_OF(X509). Default: 'raw'.
+Certificate format: \fBraw\fR to be used with XrdCrypto tools; \fBpem\fR PEM base64 format (as in cert files); \fBx509\fR, as a STACK_OF(X509). Default: \fBraw\fR.
 .RE
 
 \fBgroupopt=opt\fR
 .RS 2
-What to do with the group names; defined as opt = sel * 10 + which, with 'sel' either \fB0\fR (consider all those present)
-or \fB1\fR (select among those specified by the 'grps' option; see below), and 'which' either \fB0\fR (take the first one)
+Defines how to use the group names information; \fBopt\fR is defined as \fBsel\fR * 10 + \fBwhich\fR, with \fBsel\fR either \fB0\fR
+(consider all the groups present in the VOMS extension)
+or \fB1\fR (select among those groups specified by the \fBgrps\fR option; see below); \fBwhich\fR can be either \fB0\fR (take the first one)
 or \fB1\fR (take the last).
 .RE
 
 \fBgrps=grp1[,grp2,...]\fR
 .RS 2
-Group(s) for which the information is extracted; if specified the grpopt 'sel' is set to 1 regardless of the setting; see NOTES below.
+Group(s) for which the information is extracted; if specified, the grpopt \fBsel\fR is set to \fB1\fR regardless of the setting; see \fBNOTES\fR below.
 .RE
 
 \fBvos=vo1[,vo2,...]\fR
 .RS 2
-VOs to be considered; the first match is taken; see NOTES below.
+VOs to be considered; the first match is taken; see \fBNOTES\fR below.
 .RE
 
 \fBdbg\fR
@@ -51,7 +51,7 @@ Multiple options can be specified separated by '\fR|\fB'.
 
 .SH NOTES
 
-Specifying 'grps' or 'vos' options forces a failure if the requested group and/or VO is not found. In this regard, this plug-in may
+Specifying \fBgrps\fR or \fBvos\fR options forces a failure if the requested group and/or VO is not found. In this regard, this plug-in may
 act as a sort of authorization filter. Note that most refined authorization based on VOMS information may be achieved using
 the \fBlibXrdSecgsiAuthzVO\fR plug-in distributed with XRootD.
 
@@ -81,7 +81,7 @@ and are typically available under \fB/usr/lib\fr or \fB/usr/lib64\fR.
 The environment \fBX509_VOMS_DIR\fR must be set to a valid directory; this is typically \fB/etc/grid-security/vomsdir\fR.
 
 .SH DIAGNOSTICS
-The \fBlibXrdSecgsiVOMS\fR plug-in requires \fBlibvomsapi.so\fR and the openssl libraries. In case of load failuer it may be
+The \fBlibXrdSecgsiVOMS\fR plug-in requires \fBlibvomsapi.so\fR and the openssl libraries. In case of load failure it may be
 useful to check with ldd if all the required dependencies are correctly resolved.
 
 .SH LICENSE

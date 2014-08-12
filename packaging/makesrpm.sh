@@ -136,7 +136,7 @@ if test x${VERSION:0:1} = x"v"; then
 fi
 
 XRDV4="no"
-if test x${VERSION:0:1} = x"4"; then
+if test x${XRDVERS:0:2} = x"v4"; then
   XRDV4="yes"
 fi
 
@@ -186,12 +186,14 @@ set +e
 CWD=$PWD
 cd $SOURCEPATH
 
+VXPREF="vomsxrd"
 VXTARGZ="vomsxrd.tar.gz"
 if test "x$XRDV4" = "xyes" ; then
+   VXPREF="vomsxrd4"
    VXTARGZ="vomsxrd4.tar.gz"
 fi
 
-./packaging/maketar.sh --prefix vomsxrd --output $RPMSOURCES/$VXTARGZ
+./packaging/maketar.sh --prefix $VXPREF --output $RPMSOURCES/$VXTARGZ
 
 if test $? -ne 0; then
   echo "[!] Unable to create the source tarball" 1>&2
@@ -219,20 +221,20 @@ if test ! x$XRDVERS == x ; then
    cd unpack
    tar xzf $RPMSOURCES/$VXTARGZ
    tar xzf $RPMSOURCES/xrootd.tar.gz
-   mkdir -p vomsxrd/src/XrdCrypto
+   mkdir -p $VXPREF/src/XrdCrypto
    xrdcryptoh="XrdCryptoAux.hh XrdCryptosslAux.hh XrdCryptosslgsiX509Chain.hh
                XrdCryptoX509Crl.hh XrdCryptoX509Req.hh XrdCryptoRSA.hh
                XrdCryptosslgsiAux.hh XrdCryptoX509Chain.hh XrdCryptoX509.hh"
    for h in $xrdcryptoh ; do
-      cp -rp xrootd-$XRDVERS/src/XrdCrypto/$h vomsxrd/src/XrdCrypto
+      cp -rp xrootd-$XRDVERS/src/XrdCrypto/$h $VXPREF/src/XrdCrypto
    done
-   mkdir -p vomsxrd/src/XrdSut
+   mkdir -p $VXPREF/src/XrdSut
    xrdsuth="XrdSutAux.hh  XrdSutBucket.hh"
    for h in $xrdsuth ; do
-      cp -rp xrootd-$XRDVERS/src/XrdSut/$h vomsxrd/src/XrdSut
+      cp -rp xrootd-$XRDVERS/src/XrdSut/$h $VXPREF/src/XrdSut
    done
    # Repack $VXTARGZ
-   tar czf $RPMSOURCES/$VXTARGZ vomsxrd
+   tar czf $RPMSOURCES/$VXTARGZ $VXPREF
    # Remove the xrootd tarball
    rm -fr $RPMSOURCES/xrootd.tar.gz
    # Restore working directory
