@@ -135,6 +135,11 @@ if test x${VERSION:0:1} = x"v"; then
   VERSION=${VERSION:1}
 fi
 
+XRDV4="no"
+if test x${VERSION:0:1} = x"4"; then
+  XRDV4="yes"
+fi
+
 #-------------------------------------------------------------------------------
 # Deal with release candidates
 #-------------------------------------------------------------------------------
@@ -181,7 +186,12 @@ set +e
 CWD=$PWD
 cd $SOURCEPATH
 
-./packaging/maketar.sh --prefix vomsxrd --output $RPMSOURCES/vomsxrd.tar.gz
+VXTARGZ="vomsxrd.tar.gz"
+if test "x$XRDV4" = "xyes" ; then
+   VXTARGZ="vomsxrd4.tar.gz"
+fi
+
+./packaging/maketar.sh --prefix vomsxrd --output $RPMSOURCES/$VXTARGZ
 
 if test $? -ne 0; then
   echo "[!] Unable to create the source tarball" 1>&2
@@ -207,7 +217,7 @@ if test ! x$XRDVERS == x ; then
    cd $TEMPDIR
    mkdir unpack
    cd unpack
-   tar xzf $RPMSOURCES/vomsxrd.tar.gz
+   tar xzf $RPMSOURCES/$VXTARGZ
    tar xzf $RPMSOURCES/xrootd.tar.gz
    mkdir -p vomsxrd/src/XrdCrypto
    xrdcryptoh="XrdCryptoAux.hh XrdCryptosslAux.hh XrdCryptosslgsiX509Chain.hh
@@ -221,8 +231,8 @@ if test ! x$XRDVERS == x ; then
    for h in $xrdsuth ; do
       cp -rp xrootd-$XRDVERS/src/XrdSut/$h vomsxrd/src/XrdSut
    done
-   # Repack vomsxrd.tar.gz
-   tar czf $RPMSOURCES/vomsxrd.tar.gz vomsxrd
+   # Repack $VXTARGZ
+   tar czf $RPMSOURCES/$VXTARGZ vomsxrd
    # Remove the xrootd tarball
    rm -fr $RPMSOURCES/xrootd.tar.gz
    # Restore working directory
@@ -232,12 +242,18 @@ fi
 #-------------------------------------------------------------------------------
 # Generate the spec file
 #-------------------------------------------------------------------------------
-if test ! -r vomsxrd.spec.in; then
+VXSPECIN="vomsxrd.spec.in"
+VXSPEC="vomsxrd.spec"
+if test "x$XRDV4" = "xyes" ; then
+   VXSPECIN="vomsxrd4.spec.in"
+   VXSPEC="vomsxrd4.spec"
+fi
+if test ! -r $VXSPECIN; then
   echo "[!] The specfile template does not exist! $PWD" 1>&2
   exit 7
 fi
-cat vomsxrd.spec.in | sed "s/__VERSION__/$VERSION/" | \
-  sed "s/__RELEASE__/$RELEASE/" > $TEMPDIR/vomsxrd.spec
+cat $VXSPECIN | sed "s/__VERSION__/$VERSION/" | \
+  sed "s/__RELEASE__/$RELEASE/" > $TEMPDIR/$VXSPEC
 
 #-------------------------------------------------------------------------------
 # Build the source RPM
@@ -251,14 +267,14 @@ rpmbuild --define "_topdir $TEMPDIR/rpmbuild"    \
          --define "%_srcrpmdir %{_topdir}/SRPMS" \
          --define "_source_filedigest_algorithm md5" \
          --define "_binary_filedigest_algorithm md5" \
-  -bs $TEMPDIR/vomsxrd.spec > $TEMPDIR/log
+  -bs $TEMPDIR/$VXSPEC > $TEMPDIR/log
 if test $? -ne 0; then
   echo "[!] RPM creation failed" 1>&2
   exit 8
 fi
 
 cp $TEMPDIR/rpmbuild/SRPMS/vomsxrd*.src.rpm $OUTPUTPATH
-cp $TEMPDIR/vomsxrd.spec $OUTPUTPATH
+cp $TEMPDIR/$VXSPEC $OUTPUTPATH
 rm -rf $TEMPDIR
 
 echo "[i] Done."
