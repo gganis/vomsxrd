@@ -3,6 +3,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (vomsxrd)
 
+cmake_policy(SET CMP0021 OLD)
+
 # make sure that the default is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE RELEASE CACHE STRING

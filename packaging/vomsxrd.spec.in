@@ -12,7 +12,7 @@ Name:      vomsxrd
 Epoch:     1
 Version:   __VERSION__
 Release:   __RELEASE__%{?dist}%{?_with_xrootd_user:.xu}
-Summary:   VOMS attribute extractor plug-in for XRootD
+Summary:   VOMS attribute extractor plug-in for XRootD v >= 4.1
 Group:     System Environment/Libraries
 License:   BSD
 URL:       https://github.com/gganis/voms
@@ -27,11 +27,14 @@ BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: cmake >= 2.6
 BuildRequires: voms >= 2.0.6
 BuildRequires: voms-devel >= 2.0.6
-BuildRequires: xrootd-libs >= 3.2.7
-BuildRequires: xrootd-libs-devel >= 3.2.7
+# BuildRequires: xrootd-libs >= 4.1.0
+# BuildRequires: xrootd-devel >= 4.1.0
+BuildRequires: xrootd-libs
+BuildRequires: xrootd-devel
 
 Requires: voms >= 2.0.6
-Requires: xrootd-libs >= 3.2.7
+# Requires: xrootd-libs >= 4.1.0
+Requires: xrootd-libs
 
 %description
 The VOMS attribute extractor plug-in for XRootD
@@ -89,16 +92,18 @@ rm -rf $RPM_BUILD_ROOT
 #-------------------------------------------------------------------------------
 %files 
 %defattr(-,root,root,-)
-%{_libdir}/libXrdSecgsiVOMS.so*
+%{_libdir}/libXrdSecgsiVOMS-4.so
 %doc %{_mandir}/man1/libXrdSecgsiVOMS.1.gz
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/%{name}
+%{_includedir}/vomsxrd
 
 #-------------------------------------------------------------------------------
 # Changelog
 #-------------------------------------------------------------------------------
 %changelog
-* Wed Mar 21 2013 G. Ganis <gerardo.ganis@cern.ch>
-- Created
+* Tue Nov 11 2014 G. Ganis <gerardo.ganis@cern.ch>
+- Adapted from packaging/vomsxrd4.spec.in for new packaging in v 4.1
+* Tue Aug 12 2014 G. Ganis <gerardo.ganis@cern.ch>
+- Adapted from ancestor packaging/vomsxrd.spec.in

@@ -8,11 +8,11 @@
 #-------------------------------------------------------------------------------
 # Package definitions
 #-------------------------------------------------------------------------------
-Name:      vomsxrd4
+Name:      vomsxrd-compat
 Epoch:     1
 Version:   __VERSION__
 Release:   __RELEASE__%{?dist}%{?_with_xrootd_user:.xu}
-Summary:   VOMS attribute extractor plug-in for XRootD v4
+Summary:   VOMS attribute extractor plug-in for XRootD v [3.2.7 to 3.3.6]
 Group:     System Environment/Libraries
 License:   BSD
 URL:       https://github.com/gganis/voms
@@ -20,18 +20,18 @@ Prefix:    /usr
 
 # git clone git://github.com/gganis/voms.git vomsxrd
 # cd vomsxrd
-# ./packaging/maketar.sh --prefix vomsxrd --output ~/rpmbuild/SOURCES/vomsxrd.tar.gz
-Source0:   vomsxrd4.tar.gz
+# ./packaging/maketar.sh --prefix vomsxrd --output ~/rpmbuild/SOURCES/vomsxrd-compat.tar.gz
+Source0:   vomsxrd-compat.tar.gz
 BuildRoot: %{_tmppath}/%{name}-root
 
 BuildRequires: cmake >= 2.6
 BuildRequires: voms >= 2.0.6
 BuildRequires: voms-devel >= 2.0.6
-BuildRequires: xrootd4-libs >= 4.0.0
-BuildRequires: xrootd4-devel >= 4.0.0
+BuildRequires: xrootd-client-compat
+BuildRequires: xrootd-devel
 
 Requires: voms >= 2.0.6
-Requires: xrootd4-libs >= 4.0.0
+Requires: xrootd-client-compat
 
 %description
 The VOMS attribute extractor plug-in for XRootD
@@ -94,11 +94,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/vomsxrd
+%{_includedir}/%{name}
 
 #-------------------------------------------------------------------------------
 # Changelog
 #-------------------------------------------------------------------------------
 %changelog
-* Tue Aug 12 2014 G. Ganis <gerardo.ganis@cern.ch>
-- Adapted from packaging/vomsxrd.spec.in
+* Tue Nov 11 2014 G. Ganis <gerardo.ganis@cern.ch>
+- Created from ancestor packaging/vomsxrd.spec.in

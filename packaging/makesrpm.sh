@@ -28,10 +28,14 @@ function printHelp()
   echo "Usage:"                                              1>&2
   echo "${0} [--help] [--source PATH] [--output PATH] [--xrdvers VERSION]"       1>&2
   echo "  --help        prints this message"                 1>&2
+  echo "  --rpmname NAME specify the RPM name: vomsxrd or vomsxrd-compat" 1>&2
+  echo "                defaults to vomsxrd"                     1>&2
   echo "  --source PATH specify the root of the source tree" 1>&2
   echo "                defaults to ../"                     1>&2
   echo "  --output PATH the directory where the source rpm"  1>&2
   echo "                should be stored, defaulting to ."   1>&2
+  echo "  --xrdsrc PATH specofy path to xrootd source tarball"  1>&2
+  echo "                default none (XrdCrypto deps not built)"   1>&2
   echo "  --xrdvers VERSION the xrootd version against"      1>&2
   echo "                which we are build (e.g. v3.3.1);"   1>&2
   echo "                default none (XrdCrypto deps not built)"   1>&2
@@ -40,14 +44,23 @@ function printHelp()
 #-------------------------------------------------------------------------------
 # Parse the commandline, if only we could use getopt... :(
 #-------------------------------------------------------------------------------
+RPMNAME="vomsxrd"
 SOURCEPATH="../"
 OUTPUTPATH="."
+XRDSRCPATH=""
 XRDVERS=""
 PRINTHELP=0
 
 while test ${#} -ne 0; do
   if test x${1} = x--help; then
     PRINTHELP=1
+  elif test x${1} = x--rpmname; then
+    if test ${#} -lt 2; then
+      echo "--rpmname parameter needs an argument" 1>&2
+      exit 1
+    fi
+    RPMNAME=${2}
+    shift
   elif test x${1} = x--source; then
     if test ${#} -lt 2; then
       echo "--source parameter needs an argument" 1>&2
@@ -61,6 +74,13 @@ while test ${#} -ne 0; do
       exit 1
     fi
     OUTPUTPATH=${2}
+    shift
+  elif test x${1} = x--xrdsrc; then
+    if test ${#} -lt 2; then
+      echo "--xrdsrc parameter needs an argument" 1>&2
+      exit 1
+    fi
+    XRDSRCPATH=${2}
     shift
   elif test x${1} = x--xrdvers; then
     if test ${#} -lt 2; then
@@ -78,8 +98,12 @@ if test $PRINTHELP -eq 1; then
   exit 0
 fi
 
+echo "[i] Creating source RPM for '$RPMNAME'"
 echo "[i] Working on: $SOURCEPATH"
 echo "[i] Storing the output to: $OUTPUTPATH"
+if test ! "x$XRDSRCPATH" = "x" ; then
+   echo "[i] Taking XRootD source from $XRDSRCPATH"
+fi
 
 #-------------------------------------------------------------------------------
 # Check if the source and the output dirs
@@ -186,12 +210,8 @@ set +e
 CWD=$PWD
 cd $SOURCEPATH
 
-VXPREF="vomsxrd"
-VXTARGZ="vomsxrd.tar.gz"
-if test "x$XRDV4" = "xyes" ; then
-   VXPREF="vomsxrd4"
-   VXTARGZ="vomsxrd4.tar.gz"
-fi
+VXPREF="$RPMNAME"
+VXTARGZ="$RPMNAME.tar.gz"
 
 ./packaging/maketar.sh --prefix $VXPREF --output $RPMSOURCES/$VXTARGZ
 
@@ -209,12 +229,16 @@ if test ! x$XRDVERS == x ; then
    if test x${XRDVERS:0:1} = x"v"; then
       XRDVERS=${XRDVERS:1}
    fi
-   wget http://xrootd.org/download/v$XRDVERS/xrootd-$XRDVERS.tar.gz -O $RPMSOURCES/xrootd.tar.gz
+   if test "x$XRDSRCPATH" = "x" ; then
+      wget http://xrootd.org/download/v$XRDVERS/xrootd-$XRDVERS.tar.gz -O $RPMSOURCES/xrootd.tar.gz
+   else
+      cp -rp $XRDSRCPATH -O $RPMSOURCES/xrootd.tar.gz
+   fi
    if test $? -ne 0; then
       echo "[!] Unable to retrieve the required XRootD source tarball" 1>&2
       exit 6
    fi
-   # Unpack and retrieve required files
+   # Unpack and retrieve required files 
    CWD=$PWD
    cd $TEMPDIR
    mkdir unpack
@@ -244,12 +268,8 @@ fi
 #-------------------------------------------------------------------------------
 # Generate the spec file
 #-------------------------------------------------------------------------------
-VXSPECIN="vomsxrd.spec.in"
-VXSPEC="vomsxrd.spec"
-if test "x$XRDV4" = "xyes" ; then
-   VXSPECIN="vomsxrd4.spec.in"
-   VXSPEC="vomsxrd4.spec"
-fi
+VXSPECIN="$RPMNAME.spec.in"
+VXSPEC="$RPMNAME.spec"
 if test ! -r $VXSPECIN; then
   echo "[!] The specfile template does not exist! $PWD" 1>&2
   exit 7
@@ -275,7 +295,7 @@ if test $? -ne 0; then
   exit 8
 fi
 
-cp $TEMPDIR/rpmbuild/SRPMS/vomsxrd*.src.rpm $OUTPUTPATH
+cp $TEMPDIR/rpmbuild/SRPMS/$RPMNAME.src.rpm $OUTPUTPATH
 cp $TEMPDIR/$VXSPEC $OUTPUTPATH
 rm -rf $TEMPDIR
 

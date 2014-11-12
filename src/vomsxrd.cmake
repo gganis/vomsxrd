@@ -11,31 +11,56 @@ include( vomsxrdCommon )
 #-------------------------------------------------------------------------------
 # Shared library version
 #-------------------------------------------------------------------------------
-set( XRD_SEC_GSI_VOMS_VERSION    1.0.0 )
-set( XRD_SEC_GSI_VOMS_SOVERSION  0 )
+if (XROOTD_VERSIONNED)
 
-add_library(
-   XrdSecgsiVOMS
-   SHARED
-   ${CMAKE_SOURCE_DIR}/src/XrdSecgsiVOMSFun.cc )
+  set( LIB_XRD_SEC_GSI_VOMS     XrdSecgsiVOMS-${XROOTD_PLUGIN_VERSION} )
 
-target_link_libraries(
-   XrdSecgsiVOMS
-   ${XROOTD_LIBRARIES}
-   ${VOMS_LIBRARIES} )
+  add_library(
+     ${LIB_XRD_SEC_GSI_VOMS}
+     MODULE
+     ${CMAKE_SOURCE_DIR}/src/XrdSecgsiVOMSFun.cc )
 
-set_target_properties(
-   XrdSecgsiVOMS
-   PROPERTIES
-   VERSION   ${XRD_SEC_GSI_VOMS_VERSION}
-   SOVERSION ${XRD_SEC_GSI_VOMS_SOVERSION}
-   LINK_INTERFACE_LIBRARIES "" )
+  target_link_libraries(
+     ${LIB_XRD_SEC_GSI_VOMS}
+     ${XROOTD_LIBRARIES}
+     ${VOMS_LIBRARIES} )
+
+  set_target_properties(
+     ${LIB_XRD_SEC_GSI_VOMS}
+     PROPERTIES
+     INTERFACE_LINK_LIBRARIES ""
+     LINK_INTERFACE_LIBRARIES "" )
+
+else()
+
+  set( LIB_XRD_SEC_GSI_VOMS     XrdSecgsiVOMS )
+  set( XRD_SEC_GSI_VOMS_VERSION    1.0.0 )
+  set( XRD_SEC_GSI_VOMS_SOVERSION  0 )
+
+  add_library(
+     ${LIB_XRD_SEC_GSI_VOMS}
+     SHARED
+     ${CMAKE_SOURCE_DIR}/src/XrdSecgsiVOMSFun.cc )
+
+  target_link_libraries(
+     ${LIB_XRD_SEC_GSI_VOMS}
+     ${XROOTD_LIBRARIES}
+     ${VOMS_LIBRARIES} )
+
+  set_target_properties(
+     ${LIB_XRD_SEC_GSI_VOMS}
+     PROPERTIES
+     VERSION   ${XRD_SEC_GSI_VOMS_VERSION}
+     SOVERSION ${XRD_SEC_GSI_VOMS_SOVERSION}
+     LINK_INTERFACE_LIBRARIES "" )
+
+endif()
 
 #-------------------------------------------------------------------------------
 # Install
 #-------------------------------------------------------------------------------
 install(
-   TARGETS XrdSecgsiVOMS
+   TARGETS ${LIB_XRD_SEC_GSI_VOMS}
    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
