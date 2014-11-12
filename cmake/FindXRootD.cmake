@@ -46,26 +46,31 @@ else()
     
   set( XROOTD_INCLUDE_DIRS ${XROOTD_INCLUDE_DIR})
 
-  find_program(
-    XROOTD_CONFIG_EXE
-    NAMES xrootd-config
-    PATHS
-    ${XROOTD_ROOT_DIR}/bin
-    )
-  if (XROOTD_CONFIG_EXE)
-    message(STATUS "xrootd-config: ${XROOTD_CONFIG_EXE}")
-    exec_program(${XROOTD_CONFIG_EXE} ARGS "--plugin-version 2>&1" OUTPUT_VARIABLE _xrd_plugin_version)
-    if (NOT _xrd_plugin_version MATCHES "")
-       set(XROOTD_PLUGIN_VERSION ${_xrd_plugin_version})
+  if (NOT XROOTD_COMPAT)
+    find_program(
+      XROOTD_CONFIG_EXE
+      NAMES xrootd-config
+      PATHS
+      ${XROOTD_ROOT_DIR}/bin
+      )
+    if (XROOTD_CONFIG_EXE)
+      message(STATUS "xrootd-config: ${XROOTD_CONFIG_EXE}")
+      exec_program(${XROOTD_CONFIG_EXE} ARGS "--plugin-version 2>&1" OUTPUT_VARIABLE _xrd_plugin_version)
+      if (NOT _xrd_plugin_version MATCHES "")
+         set(XROOTD_PLUGIN_VERSION ${_xrd_plugin_version})
+      else()
+         set(XROOTD_PLUGIN_VERSION "4")
+      endif()
+      set(_xrd_crypto_ssl XrdCryptossl-${XROOTD_PLUGIN_VERSION})
+      message(STATUS "Plugin-version set to: ${XROOTD_PLUGIN_VERSION}")
+      set( XROOTD_VERSIONNED TRUE )
     else()
-       set(XROOTD_PLUGIN_VERSION "4")
+      set(_xrd_crypto_ssl XrdCryptossl)
+      message(STATUS "No plugin-version information: assume < 4")
     endif()
-    set(_xrd_crypto_ssl XrdCryptossl-${XROOTD_PLUGIN_VERSION})
-    message(STATUS "Plugin-version set to: ${XROOTD_PLUGIN_VERSION}")
-    set( XROOTD_VERSIONNED TRUE )
   else()
     set(_xrd_crypto_ssl XrdCryptossl)
-    message(STATUS "No plugin-version information: assume < 4")
+    message(STATUS "Compat build: plugin-version check")    
   endif()
 
   find_library(
