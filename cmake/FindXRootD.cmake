@@ -70,7 +70,7 @@ else()
     endif()
   else()
     set(_xrd_crypto_ssl XrdCryptossl)
-    message(STATUS "Compat build: plugin-version check")    
+    message(STATUS "Compat build: plugin-version check disabled")    
   endif()
 
   find_library(
