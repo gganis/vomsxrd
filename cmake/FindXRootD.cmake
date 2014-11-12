@@ -50,9 +50,7 @@ else()
     XROOTD_CONFIG_EXE
     NAMES xrootd-config
     PATHS
-    ${XROOTD_ROOT_DIR}
-    PATH_SUFFIXES bin
-    NO_DEFAULT_PATH 
+    ${XROOTD_ROOT_DIR}/bin
     )
   if (XROOTD_CONFIG_EXE)
     message(STATUS "xrootd-config: ${XROOTD_CONFIG_EXE}")
