@@ -42,11 +42,8 @@
 #include "XrdSecgsiVOMSTrace.hh"
 
 #ifdef HAVE_XRDCRYPTO
-#include "XrdCrypto/XrdCryptosslAux.hh"
-#include "XrdCrypto/XrdCryptosslgsiAux.hh"
 #include "XrdCrypto/XrdCryptoX509.hh"
 #include "XrdCrypto/XrdCryptoX509Chain.hh"
-#include "XrdSut/XrdSutBucket.hh"
 #endif
 #include "XrdOuc/XrdOucHash.hh"
 #include "XrdOuc/XrdOucString.hh"

@@ -26,8 +26,7 @@ else()
 
    if (XROOTD_INCLUDE_DIR)
       # Check for XrdCrypto headers
-      foreach(i XrdCrypto/XrdCryptosslAux.hh XrdCrypto/XrdCryptosslgsiAux.hh XrdCrypto/XrdCryptoX509.hh
-                XrdCrypto/XrdCryptoX509Chain.hh XrdSut/XrdSutBucket.hh)
+      foreach(i XrdCrypto/XrdCryptoX509.hh XrdCrypto/XrdCryptoX509Chain.hh XrdSut/XrdSutBucket.hh)
          find_path(XRDCRYPTO_INCLUDE_DIR_${i}
             NAMES ${i} 
             PATHS 
