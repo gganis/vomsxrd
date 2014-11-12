@@ -232,7 +232,7 @@ if test ! x$XRDVERS == x ; then
    if test "x$XRDSRCPATH" = "x" ; then
       wget http://xrootd.org/download/v$XRDVERS/xrootd-$XRDVERS.tar.gz -O $RPMSOURCES/xrootd.tar.gz
    else
-      cp -rp $XRDSRCPATH -O $RPMSOURCES/xrootd.tar.gz
+      cp -rpL $XRDSRCPATH/xrootd-$XRDVERS.tar.gz $RPMSOURCES/xrootd.tar.gz
    fi
    if test $? -ne 0; then
       echo "[!] Unable to retrieve the required XRootD source tarball" 1>&2
@@ -246,16 +246,20 @@ if test ! x$XRDVERS == x ; then
    tar xzf $RPMSOURCES/$VXTARGZ
    tar xzf $RPMSOURCES/xrootd.tar.gz
    mkdir -p $VXPREF/src/XrdCrypto
-   xrdcryptoh="XrdCryptoAux.hh XrdCryptosslAux.hh XrdCryptosslgsiX509Chain.hh
+   xrdcryptoh="XrdCryptoAux.hh XrdCryptosslAux.hh XrdCryptoX509Chain.hh
                XrdCryptoX509Crl.hh XrdCryptoX509Req.hh XrdCryptoRSA.hh
                XrdCryptosslgsiAux.hh XrdCryptoX509Chain.hh XrdCryptoX509.hh"
+   XRDDIR="xrootd-$XRDVERS"
+   if test ! -d $XRDDIR; then
+      XRDDIR="xrootd"
+   fi
    for h in $xrdcryptoh ; do
-      cp -rp xrootd-$XRDVERS/src/XrdCrypto/$h $VXPREF/src/XrdCrypto
+      cp -rp $XRDDIR/src/XrdCrypto/$h $VXPREF/src/XrdCrypto
    done
    mkdir -p $VXPREF/src/XrdSut
    xrdsuth="XrdSutAux.hh  XrdSutBucket.hh"
    for h in $xrdsuth ; do
-      cp -rp xrootd-$XRDVERS/src/XrdSut/$h $VXPREF/src/XrdSut
+      cp -rp $XRDDIR/src/XrdSut/$h $VXPREF/src/XrdSut
    done
    # Repack $VXTARGZ
    tar czf $RPMSOURCES/$VXTARGZ $VXPREF
@@ -295,7 +299,7 @@ if test $? -ne 0; then
   exit 8
 fi
 
-cp $TEMPDIR/rpmbuild/SRPMS/$RPMNAME.src.rpm $OUTPUTPATH
+cp $TEMPDIR/rpmbuild/SRPMS/$RPMNAME-*.src.rpm $OUTPUTPATH
 cp $TEMPDIR/$VXSPEC $OUTPUTPATH
 rm -rf $TEMPDIR
 

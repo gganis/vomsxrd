@@ -63,7 +63,7 @@ if test $PRINTHELP -eq 1; then
   exit 0
 fi
 
-echo "[I] Storing the output to: $OUTDIR"
+echo "[I] Storing the output to: $OUTFILE"
 
 #-------------------------------------------------------------------------------
 # Check if we have all the necessary components
