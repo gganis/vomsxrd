@@ -27,11 +27,11 @@ BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: cmake >= 2.6
 BuildRequires: voms >= 2.0.6
 BuildRequires: voms-devel >= 2.0.6
-BuildRequires: xrootd-client-compat
-BuildRequires: xrootd-devel
+BuildRequires: xrootd-client-compat >= 4.1.0
+BuildRequires: xrootd-devel >= 4.1.0
 
 Requires: voms >= 2.0.6
-Requires: xrootd-client-compat
+Requires: xrootd-client-compat >= 4.1.0
 
 %description
 The VOMS attribute extractor plug-in for XRootD
