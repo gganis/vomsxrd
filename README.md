@@ -111,7 +111,7 @@
                                        pem   PEM base64 format (as in cert files)
                                        x509  As a STACK_OF(X509) (struct gsiVOMS_x509_in_t,
                                              see XrdSecgsiVOMS.hh).
-              grpopt=opt               What to do with the group names:  [1]
+              grpopt=opt               What to do with the group names:  [2]
                                            opt = sel * 10 + which
                                        with 'sel'
                                            0    consider all those present
