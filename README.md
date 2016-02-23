@@ -119,6 +119,7 @@
                                        and 'which'
                                            0    take the first one
                                            1    take the last
+                                           2    take all (if more than 1, groups are blank separated)
               grps=grp1[,grp2,...]     Group(s) for which the information is extracted; if specified
                                        the grpopt 'sel' is set to 1 regardless of the setting.
               vos=vo1[,vo2,...]        VOs to be considered; the first match is taken
@@ -138,7 +139,7 @@
    in other plug-ins.
  
  -------------------------------------------------------------------------------------------------------------
- (GG, 14 Jan 2013). 
+ (GG, 23 Feb 2016). 
 
 
   

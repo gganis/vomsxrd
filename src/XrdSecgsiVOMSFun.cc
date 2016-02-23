@@ -62,7 +62,7 @@ static int gCertFmt = 0;                       //  certfmt:raw|pem|x509 [raw]
 static int gCertFmt = 1;                       //  certfmt:pem|x509 [pem]
 #endif
 static int gGrpSel = 0;                        //  grpopt's sel = 0|1 [0]
-static int gGrpWhich = 1;                      //  grpopt's which = 0|1 [1]
+static int gGrpWhich = 2;                      //  grpopt's which = 0|1|2 [2]
 static XrdOucHash<int> gGrps;                  //  hash table with grps=grp1[,grp2,...]
 static XrdOucHash<int> gVOs;                   //  hash table with vos=vo1[,vo2,...]
 static bool gDebug = 0;                        //  Verbosity control
@@ -219,8 +219,15 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
             bool fillgrp = 1;
             if (gGrpSel == 1 && !gGrps.Find((*idat).group.c_str())) fillgrp = 0;
             if (fillgrp) {
-               grps = (*idat).group.c_str();
-               role = (*idat).role.c_str();
+               if (gGrpWhich == 2) {
+                  if (grps.length() > 0) grps += " ";
+                  grps += (*idat).group.c_str();
+                  if (role.length() > 0) role += " ";
+                  role += (*idat).role.c_str();
+               } else {
+                  grps = (*idat).group.c_str();
+                  role = (*idat).role.c_str();
+               }
             }
             // If we are asked to take the first we break
             if (gGrpWhich == 0 && grps.length() > 0) break;            
@@ -348,9 +355,9 @@ int XrdSecgsiVOMSInit(const char *cfg)
                PRINT("WARNING: grpopt sel must be in [0,1] - ignoring");
             }
             gGrpWhich = grpopt % 10;
-            if (gGrpWhich != 0 && gGrpWhich != 1) {
+            if (gGrpWhich != 0 && gGrpWhich != 1 && gGrpWhich != 2) {
                gGrpWhich = 1;
-               PRINT("WARNING: grpopt which must be in [0,1] - ignoring");
+               PRINT("WARNING: grpopt which must be in [0,2] - ignoring");
             }
          } else {
             PRINT("WARNING: you must pass a digit to grpopt: "<<go);
@@ -399,7 +406,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
    // Notify
    const char *cfmt[3] = { "raw", "pem base64", "STACK_OF(X509)" };
    const char *cgrs[2] = { "all", "specified group(s)"};
-   const char *cgrw[2] = { "first", "last" };
+   const char *cgrw[3] = { "first", "last", "all" };
    PRINT("++++++++++++++++++ VOMS plugi-in ++++++++++++++++++++++++++++++");
    PRINT("+++ proxy fmt:    "<< cfmt[gCertFmt]);
    PRINT("+++ group option: "<<cgrw[gGrpWhich]<<" of "<<cgrs[gGrpSel]);
