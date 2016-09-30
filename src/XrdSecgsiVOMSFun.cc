@@ -122,15 +122,15 @@ static void FmtReplace(XrdSecEntity &ent)
    VOMSREPLACE(gRoleFmt, rf, ent);
    VOMSREPLACE(gVoFmt, vf, ent);
 
-   if (gf.lenght() > 0) {
+   if (gf.length() > 0) {
       SafeFree(ent.grps);
       ent.grps = strdup(gf.c_str());
    }   
-   if (rf.lenght() > 0) {
+   if (rf.length() > 0) {
       SafeFree(ent.role);
       ent.role = strdup(rf.c_str());
    }   
-   if (vf.lenght() > 0) {
+   if (vf.length() > 0) {
       SafeFree(ent.vorg);
       ent.vorg = strdup(vf.c_str());
    }   
