@@ -66,9 +66,34 @@ static int gGrpWhich = 2;                      //  grpopt's which = 0|1|2 [2]
 static XrdOucHash<int> gGrps;                  //  hash table with grps=grp1[,grp2,...]
 static XrdOucHash<int> gVOs;                   //  hash table with vos=vo1[,vo2,...]
 static bool gDebug = 0;                        //  Verbosity control
-static XrdOucString gRequire;                   //  String with configuration options
+static XrdOucString gRequire;                  //  String with configuration options
+static XrdOucString gGrpFmt;                   //  String to be used to format the content of XrdSecEntity::grps
+static XrdOucString gRoleFmt;                  //  String to be used to format the content of XrdSecEntity::role
+static XrdOucString gVoFmt;                    //  String to be used to format the content of XrdSecEntity::vorg
+static bool gFmtReplace = 0;                   //  If any format replacement is required
+
 static XrdSysError gDest(0, "secgsiVOMS_");
 static XrdSysLogger gLogger;
+
+#define VOMSDBG(m) \
+   if (gDebug) { \
+      PRINT(m); \
+   } else { \
+      DEBUG(m); \
+   }
+#define VOMSDBGSUBJ(m, c) \
+   if (gDebug) { \
+      XrdOucString subject; \
+      NameOneLine(X509_get_subject_name(c), subject); \
+      PRINT(m << subject); \
+   }
+#define VOMSREPLACE(a, f, e) \
+   if (a.length() > 0) { \
+      f.replace("<g>", e.grps); \
+      f.replace("<r>", e.role); \
+      f.replace("<vo>", e.vorg); \
+      f.replace("<an>", e.endorsements); \
+   }
 
 //
 // Function to convert X509_NAME into a one-line human readable string
@@ -87,18 +112,29 @@ static void NameOneLine(X509_NAME *nm, XrdOucString &s)
    return;
 }
 
-#define VOMSDBG(m) \
-   if (gDebug) { \
-      PRINT(m); \
-   } else { \
-      DEBUG(m); \
-   }
-#define VOMSDBGSUBJ(m, c) \
-   if (gDebug) { \
-      XrdOucString subject; \
-      NameOneLine(X509_get_subject_name(c), subject); \
-      PRINT(m << subject); \
-   }
+//
+// Function to convert X509_NAME into a one-line human readable string
+static void FmtReplace(XrdSecEntity &ent)
+{
+   XrdOucString gf(gGrpFmt), rf(gRoleFmt), vf(gVoFmt);
+
+   VOMSREPLACE(gGrpFmt, gf, ent);
+   VOMSREPLACE(gRoleFmt, rf, ent);
+   VOMSREPLACE(gVoFmt, vf, ent);
+
+   if (gf.lenght() > 0) {
+      SafeFree(ent.grps);
+      ent.grps = strdup(gf.c_str());
+   }   
+   if (rf.lenght() > 0) {
+      SafeFree(ent.role);
+      ent.role = strdup(rf.c_str());
+   }   
+   if (vf.lenght() > 0) {
+      SafeFree(ent.vorg);
+      ent.vorg = strdup(vf.c_str());
+   }   
+}
 
 //
 // Main function
@@ -247,7 +283,7 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
             endor = "";
          }
       }
-      // Save the VO
+      // Save the information found
       SafeFree(ent.vorg);
       SafeFree(ent.grps);
       SafeFree(ent.role);
@@ -265,6 +301,9 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
    } else {
       PRINT("retrieval FAILED: "<< v.ErrorMessage());
    }
+
+   // Adjust the output format, if required
+   FmtReplace(ent);
 
    // Free memory taken by the chain, if required
    if (stk && freestk) {
@@ -308,6 +347,16 @@ int XrdSecgsiVOMSInit(const char *cfg)
    //         grps=grp1[,grp2,...]   Group(s) for which the information is extracted; if specified
    //                                the grpopt 'sel' is set to 1 regardless of the setting.
    //         vos=vo1[,vo2,...]      VOs to be considered; the first match is taken
+   //         grpfmt=<string>        String to be used to format the content of XrdSecEntity::grps
+   //         rolefmt=<string>       String to be used to format the content of XrdSecEntity::role
+   //         vofmt=<string>         String to be used to format the content of XrdSecEntity::vorg
+   //                                Recognized place holders in the above format strings:
+   //                                   <r>   role, as resulting from the parsing procedure
+   //                                   <g>   group
+   //                                   <vo>  VO
+   //                                   <an>  Full Qualified Attribute Name
+   //                                For example, rolefmt="<r>",grpfmt="<r>" will inverse the group and
+   //                                role in the output XrdSecEntity
    //         dbg                    To force verbose mode
    //
    EPNAME("Init");
@@ -398,6 +447,27 @@ int XrdSecgsiVOMSInit(const char *cfg)
          }
       }
 
+      // Output group format string
+      int igf = oos.find("grpfmt=");
+      if (igf != STR_NPOS) {
+         gGrpFmt.assign(oos, igf + strlen("grpfmt="));
+         gGrpFmt.erase(gGrpFmt.find(' '));
+      }
+
+      // Output role format string
+      int irf = oos.find("rolefmt=");
+      if (irf != STR_NPOS) {
+         gRoleFmt.assign(oos, irf + strlen("rolefmt="));
+         gRoleFmt.erase(gRoleFmt.find(' '));
+      }
+
+      // Output vo format string
+      int ivf = oos.find("vofmt=");
+      if (ivf != STR_NPOS) {
+         gVoFmt.assign(oos, ivf + strlen("vofmt="));
+         gVoFmt.erase(gVoFmt.find(' '));
+      }
+
       // Verbose mode
       if (oos.find("dbg") != STR_NPOS) gDebug = 1;
    }
@@ -416,6 +486,12 @@ int XrdSecgsiVOMSInit(const char *cfg)
          PRINT("+++ group(s):      <not specified>");
       }
    }
+   if (gGrpFmt.length() > 0)
+      PRINT("+++ grps fmt:     "<< gGrpFmt);
+   if (gRoleFmt.length() > 0)
+      PRINT("+++ role fmt:     "<< gRoleFmt);
+   if (gVoFmt.length() > 0)
+      PRINT("+++ vorg fmt:     "<< gVoFmt);
    if (gVOs.Num() > 0) PRINT("+++ VO(s):        "<< voss);
    PRINT("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
    // Done
