@@ -355,7 +355,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
    //                                   <g>   group
    //                                   <vo>  VO
    //                                   <an>  Full Qualified Attribute Name
-   //                                For example, rolefmt="<r>",grpfmt="<r>" will inverse the group and
+   //                                For example, rolefmt=<r>,grpfmt=<r> will inverse the group and
    //                                role in the output XrdSecEntity
    //         dbg                    To force verbose mode
    //
