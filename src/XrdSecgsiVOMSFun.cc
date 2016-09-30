@@ -362,8 +362,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
          } else {
             PRINT("WARNING: you must pass a digit to grpopt: "<<go);
          }
-         gRequire = "grpopt=";
-         gRequire += go;
+         gRequire = "grpopt="; gRequire += go;
       }
 
       // Groups selection
@@ -378,8 +377,8 @@ int XrdSecgsiVOMSInit(const char *cfg)
                gGrps.Add(gr.c_str(), &flag);
                gGrpSel = 1;
             }
-            if (gRequire.length() > 0) gRequire += ";grps=";
-            gRequire += grps;
+            if (gRequire.length() > 0) gRequire += ";";
+            gRequire += "grps="; gRequire += grps;
          }
       }
 
@@ -394,8 +393,8 @@ int XrdSecgsiVOMSInit(const char *cfg)
                // Analyse tok
                gVOs.Add(vo.c_str(), &flag);
             }
-            if (gRequire.length() > 0) gRequire += ";vos=";
-            gRequire += voss;
+            if (gRequire.length() > 0) gRequire += ";";
+            gRequire += "vos="; gRequire += voss;
          }
       }
 
