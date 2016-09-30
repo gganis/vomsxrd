@@ -123,6 +123,16 @@
               grps=grp1[,grp2,...]     Group(s) for which the information is extracted; if specified
                                        the grpopt 'sel' is set to 1 regardless of the setting.
               vos=vo1[,vo2,...]        VOs to be considered; the first match is taken
+              grpfmt=<string>          String to be used to format the content of XrdSecEntity::grps
+              rolefmt=<string>         String to be used to format the content of XrdSecEntity::role
+              vofmt=<string>           String to be used to format the content of XrdSecEntity::vorg
+                                       Recognized place holders in the above format strings:
+                                         <r>   role, as resulting from the parsing procedure
+                                         <g>   group
+                                         <vo>  VO
+                                         <an>  Full Qualified Attribute Name
+                                       For example, rolefmt=<r>,grpfmt=<r> will inverse the group and
+                                       role in the output XrdSecEntity
               dbg                      To force verbose mode
 
 
@@ -130,6 +140,11 @@
               -vomsfunparms:grpopt=0|grps=/atlas/it|certfmt=raw
               
               to pass the certificate in RAW mode, to extract information when the first group in /atlas/it .
+ 
+              -vomsfunparms:grpopt=0|grps=/atlas/it|certfmt=raw|grpfmt=<r>
+              
+              to pass the certificate in RAW mode, to extract information when the first group in /atlas/it,
+              and fill XrdSecEntity::grps with role, for example, for authorization purposes.
  
  
    3. External usage
@@ -139,7 +154,7 @@
    in other plug-ins.
  
  -------------------------------------------------------------------------------------------------------------
- (GG, 23 Feb 2016). 
+ (GG, 30 Sept 2016). 
 
 
   
