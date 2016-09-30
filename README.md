@@ -137,6 +137,7 @@
 
 
     Example:
+
               -vomsfunparms:grpopt=0|grps=/atlas/it|certfmt=raw
               
               to pass the certificate in RAW mode, to extract information when the first group in /atlas/it .
