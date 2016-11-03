@@ -248,10 +248,13 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
          vo = (*i).voname.c_str();
          std::vector<data> dat = (*i).std;
          std::vector<data>::iterator idat = dat.begin();
+         // Same size as std::vector<data> by construction (same information in compact form)
+         std::vector<std::string> fqa = (*i).fqan;
+         std::vector<std::string>::iterator ifqa = fqa.begin();
          grps = ""; role = "";
-         for (; idat != dat.end(); idat ++) {
+         for (; idat != dat.end(); idat++, ifqa++) {
             VOMSDBG(" ---> group: '"<<(*idat).group<<"', role: '"<<(*idat).role<<"', cap: '" <<(*idat).cap<<"'");
-            if (endor.length() > 0) endor += ",";
+            VOMSDBG(" ---> fqan: '"<<(*ifqa)<<"'");
             bool fillgrp = 1;
             if (gGrpSel == 1 && !gGrps.Find((*idat).group.c_str())) fillgrp = 0;
             if (fillgrp) {
@@ -260,24 +263,19 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
                   grps += (*idat).group.c_str();
                   if (role.length() > 0) role += " ";
                   role += (*idat).role.c_str();
+                  if (endor.length() > 0) endor += ",";
+                  endor += (*ifqa).c_str();
                } else {
                   grps = (*idat).group.c_str();
                   role = (*idat).role.c_str();
+                  endor = (*ifqa).c_str();
                }
             }
             // If we are asked to take the first we break
             if (gGrpWhich == 0 && grps.length() > 0) break;            
          }
-         if (grps.length() > 0) {
-            std::vector<std::string> fqa = (*i).fqan;
-            std::vector<std::string>::iterator ifqa = fqa.begin();
-            for (; ifqa != fqa.end(); ifqa ++) {
-               VOMSDBG(" ---> fqan: '"<<(*ifqa)<<"'");
-               if (endor.length() > 0) endor += ",";
-               endor += (*ifqa).c_str();
-            }
-         } else {
-            // Reset also the other fields
+         if (grps.length() <= 0) {
+            // Reset all the fields
             role = "";
             vo = "";
             endor = "";
