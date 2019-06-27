@@ -136,6 +136,22 @@ static void FmtReplace(XrdSecEntity &ent)
    }   
 }
 
+static void FmtExtract(XrdOucString &out, XrdOucString in, const char *tag)
+{
+  // Output group format string
+  int igf = in.find(tag);
+  if (igf != STR_NPOS) {
+    int from = igf + strlen(tag);
+    if (in[from+1] == '"') {
+       out.assign(in, igf + from + 1);
+       out.erase(out.find('"'));
+    } else {
+       out.assign(in, igf + from);
+       out.erase(out.find(' '));
+    }
+  }
+}
+
 //
 // Main function
 //
@@ -350,6 +366,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
    //                                  and 'which'
    //                                    0    take the first one
    //                                    1    take the last
+   //                                    2    take all (comma separated)
    //         grps=grp1[,grp2,...]   Group(s) for which the information is extracted; if specified
    //                                the grpopt 'sel' is set to 1 regardless of the setting.
    //         vos=vo1[,vo2,...]      VOs to be considered; the first match is taken
@@ -453,6 +470,14 @@ int XrdSecgsiVOMSInit(const char *cfg)
          }
       }
 
+#if 1
+      // Output group format string
+      FmtExtract(gGrpFmt, oos, "grpfmt=");
+      // Output role format string
+      FmtExtract(gRoleFmt, oos, "rolefmt=");
+      // Output vo format string
+      FmtExtract(gVoFmt, oos, "vofmt=");
+#else
       // Output group format string
       int igf = oos.find("grpfmt=");
       if (igf != STR_NPOS) {
@@ -473,6 +498,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
          gVoFmt.assign(oos, ivf + strlen("vofmt="));
          gVoFmt.erase(gVoFmt.find(' '));
       }
+#endif
 
       // Verbose mode
       if (oos.find("dbg") != STR_NPOS) gDebug = 1;
