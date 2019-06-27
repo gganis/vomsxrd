@@ -470,35 +470,12 @@ int XrdSecgsiVOMSInit(const char *cfg)
          }
       }
 
-#if 1
       // Output group format string
       FmtExtract(gGrpFmt, oos, "grpfmt=");
       // Output role format string
       FmtExtract(gRoleFmt, oos, "rolefmt=");
       // Output vo format string
       FmtExtract(gVoFmt, oos, "vofmt=");
-#else
-      // Output group format string
-      int igf = oos.find("grpfmt=");
-      if (igf != STR_NPOS) {
-         gGrpFmt.assign(oos, igf + strlen("grpfmt="));
-         gGrpFmt.erase(gGrpFmt.find(' '));
-      }
-
-      // Output role format string
-      int irf = oos.find("rolefmt=");
-      if (irf != STR_NPOS) {
-         gRoleFmt.assign(oos, irf + strlen("rolefmt="));
-         gRoleFmt.erase(gRoleFmt.find(' '));
-      }
-
-      // Output vo format string
-      int ivf = oos.find("vofmt=");
-      if (ivf != STR_NPOS) {
-         gVoFmt.assign(oos, ivf + strlen("vofmt="));
-         gVoFmt.erase(gVoFmt.find(' '));
-      }
-#endif
 
       // Verbose mode
       if (oos.find("dbg") != STR_NPOS) gDebug = 1;
