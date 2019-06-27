@@ -150,7 +150,7 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
    vomsdata v;
    X509 *pxy = 0;
    STACK_OF(X509) *stk = 0;
-   bool freestk = 1;
+   int freestk = 1;
    
    if (gCertFmt == 0) {
 #ifdef HAVE_XRDCRYPTO
@@ -170,6 +170,7 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
       }
       pxy = (X509 *) xp->Opaque();
       VOMSDBGSUBJ("proxy: ", pxy)
+      freestk = 2;
 
       stk =sk_X509_new_null();
       XrdCryptoX509 *xxp = c->Begin();
@@ -306,9 +307,14 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
    FmtReplace(ent);
 
    // Free memory taken by the chain, if required
-   if (stk && freestk) {
-      sk_X509_pop_free(stk, X509_free);
-      X509_free(pxy);
+   if (stk && freestk > 0) {
+      if (freestk == 1) {
+         sk_X509_pop_free(stk, X509_free);
+         X509_free(pxy);
+      } else if (freestk == 2) {
+         while (sk_X509_pop(stk)) { }
+	 sk_X509_free(stk);
+      }
    }
    
    // Success or failure?
