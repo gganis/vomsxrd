@@ -24,12 +24,12 @@ The following options are available:
 Certificate format: \fBraw\fR to be used with XrdCrypto tools; \fBpem\fR PEM base64 format (as in cert files); \fBx509\fR, as a STACK_OF(X509). Default: \fBraw\fR.
 .RE
 
-\fBgroupopt=opt\fR
+\fBgrpopt=opt\fR
 .RS 2
 Defines how to use the group names information; \fBopt\fR is defined as \fBsel\fR * 10 + \fBwhich\fR, with \fBsel\fR either \fB0\fR
 (consider all the groups present in the VOMS extension)
 or \fB1\fR (select among those groups specified by the \fBgrps\fR option; see below); \fBwhich\fR can be either \fB0\fR (take the first one)
-or \fB1\fR (take the last).
+or \fB1\fR (take the last) or \fB2\fR (take all, comma separated).
 .RE
 
 \fBgrps=grp1[,grp2,...]\fR
