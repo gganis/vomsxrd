@@ -1,4 +1,4 @@
-.TH libXrdSecgsiVOMS 1 "12 August 2014"
+.TH libXrdSecgsiVOMS 1 "28 June 2019"
 .SH NAME
 libXrdSecgsiVOMS - XRootD plug-in to extract VOMS attributes
 .SH SYNOPSIS
@@ -29,7 +29,7 @@ Certificate format: \fBraw\fR to be used with XrdCrypto tools; \fBpem\fR PEM bas
 Defines how to use the group names information; \fBopt\fR is defined as \fBsel\fR * 10 + \fBwhich\fR, with \fBsel\fR either \fB0\fR
 (consider all the groups present in the VOMS extension)
 or \fB1\fR (select among those groups specified by the \fBgrps\fR option; see below); \fBwhich\fR can be either \fB0\fR (take the first one)
-or \fB1\fR (take the last) or \fB2\fR (take all, comma separated).
+or \fB1\fR (take the last) or \fB2\fR (take all, comma separated, and created a vertically sliced tuple; see \fBNOTES\fR below).
 .RE
 
 \fBgrps=grp1[,grp2,...]\fR
@@ -40,6 +40,28 @@ Group(s) for which the information is extracted; if specified, the grpopt \fBsel
 \fBvos=vo1[,vo2,...]\fR
 .RS 2
 VOs to be considered; the first match is taken; see \fBNOTES\fR below.
+.RE
+
+\fBgrpfmt=fmtstring\fR, \fBrolefmt=fmtstring\fR, \fBvofmt=fmtstring\fR
+.RS 2
+String to be used to format the content of XrdSecEntity::grps, XrdSecEntity::role, XrdSecEntity::vorg, respectively.
+These strings are optional and by default they are empty.
+.RE
+.RS 2
+Recognized place holders in the above format strings:
+.RE
+.RS 5
+
+.nf
+<r>: role
+<g>: group
+<vo>: VO
+<an>: Full Qualified Attribute Name
+
+.RE
+.RS 2
+For example, rolefmt=<g>|grpfmt=<r>|vofmt="<vo> <an>" will inverse the group and role, and will add a space and the FQAN
+in the vorg field of XrdSecEntity.
 .RE
 
 \fBdbg\fR
@@ -54,6 +76,23 @@ Multiple options can be specified separated by '\fR|\fB'.
 Specifying \fBgrps\fR or \fBvos\fR options forces a failure if the requested group and/or VO is not found. In this regard, this plug-in may
 act as a sort of authorization filter. Note that most refined authorization based on VOMS information may be achieved using
 the \fBlibXrdSecgsiAuthzVO\fR plug-in distributed with XRootD.
+
+Option 'all' for the group selection (which=2) will generated a vertically sliced tuple including VO, group and role fields. For example, the following VOMS attributes
+
+.nf
+attribute : /atlas/de/Role=production/Capability=NULL
+attribute : /atlas/de/Role=NULL/Capability=NULL
+attribute : /atlas/Role=NULL/Capability=NULL
+
+would result in following content in the XrdSecEntity fields:
+
+.nf
+
+vorg: atlas atlas atlas
+grps: /atlas/de /atlas/de /atlas
+role: producton NULL NULL
+
+The default XrdAcc will take its decision by checking in turn the triplets obtained slicing vertically this tuple.
 
 .SH EXAMPLES
 
@@ -70,11 +109,11 @@ sec.protparm gsi -vomsfunparms:dbg
 The plug-in files are
 .nf
 
-libXrdSecgsiVOMS.so\fR
-libXrdSecgsiVOMS.so.1\fR
-libXrdSecgsiVOMS.so.1.0.0
+lib64/libXrdSecgsiVOMS-4.so (or lib/libXrdSecgsiVOMS-4.so)\fR
+include/vomsxrd/XrdSecgsiVOMS.hh\fR
+include/vomsxrd/XrdSecgsiVOMSVers.hh\fR
 
-and are typically available under \fB/usr/lib\fr or \fB/usr/lib64\fR.
+and are typically available under \fB/usr\fR.
 
 
 .SH ENVIRONMENT
