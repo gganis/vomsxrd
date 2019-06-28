@@ -263,8 +263,8 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
          VOMSDBG("found VO: " << (*i).voname);
          // Filter the VO? (*i) is voms
          if (gVOs.Num() > 0 && !gVOs.Find((*i).voname.c_str())) continue;
-         // Save VO name
-         vo = (*i).voname.c_str();
+         // Save VO name (in tuple mode this is done later, in the loop over groups)
+         if (gGrpWhich < 2) vo = (*i).voname.c_str();
          std::vector<data> dat = (*i).std;
          std::vector<data>::iterator idat = dat.begin();
          // Same size as std::vector<data> by construction (same information in compact form)
@@ -278,6 +278,8 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
             if (gGrpSel == 1 && !gGrps.Find((*idat).group.c_str())) fillgrp = 0;
             if (fillgrp) {
                if (gGrpWhich == 2) {
+                  if (vo.length() > 0) vo += " ";
+                  vo += (*i).voname.c_str();
                   if (grps.length() > 0) grps += " ";
                   grps += (*idat).group.c_str();
                   if (role.length() > 0) role += " ";
