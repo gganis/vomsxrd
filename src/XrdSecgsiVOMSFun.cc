@@ -94,6 +94,11 @@ static XrdSysLogger gLogger;
       f.replace("<vo>", e.vorg); \
       f.replace("<an>", e.endorsements); \
    }
+#define VOMSSPTTAB(a) \
+   if (a.length() > 0) { \
+      int sp = -1; \
+      while ((sp = a.find(' ', sp+1)) != STR_NPOS) { a[sp] = '\t'; } \
+   }
 
 //
 // Function to convert X509_NAME into a one-line human readable string
@@ -147,7 +152,7 @@ static void FmtExtract(XrdOucString &out, XrdOucString in, const char *tag)
        out.erase(out.find('"'));
     } else {
        out.assign(in, igf + from);
-       out.erase(out.find(' '));
+       out.erase(out.find('|'));
     }
   }
 }
@@ -254,17 +259,18 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
    }
 
    bool extfound = 0;
-   XrdOucString endor, grps, role, vo;
+   XrdOucString endor, grps, role, vo, xendor, xgrps, xrole, xvo;
    if (v.Retrieve(pxy, stk, RECURSE_CHAIN)) {
       VOMSDBG("retrieval successful");
       extfound = 1;
       std::vector<voms>::iterator i = v.data.begin();
       for ( ; i != v.data.end(); i++) {
          VOMSDBG("found VO: " << (*i).voname);
+         xvo = (*i).voname; VOMSSPTTAB(xvo);
          // Filter the VO? (*i) is voms
          if (gVOs.Num() > 0 && !gVOs.Find((*i).voname.c_str())) continue;
          // Save VO name (in tuple mode this is done later, in the loop over groups)
-         if (gGrpWhich < 2) vo = (*i).voname.c_str();
+         if (gGrpWhich < 2) vo = xvo;
          std::vector<data> dat = (*i).std;
          std::vector<data>::iterator idat = dat.begin();
          // Same size as std::vector<data> by construction (same information in compact form)
@@ -274,6 +280,9 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
          for (; idat != dat.end(); idat++, ifqa++) {
             VOMSDBG(" ---> group: '"<<(*idat).group<<"', role: '"<<(*idat).role<<"', cap: '" <<(*idat).cap<<"'");
             VOMSDBG(" ---> fqan: '"<<(*ifqa)<<"'");
+            xgrps = (*idat).group; VOMSSPTTAB(xgrps);
+            xrole = (*idat).role; VOMSSPTTAB(xrole);
+            xendor = (*ifqa); VOMSSPTTAB(xendor);
             bool fillgrp = 1;
             if (gGrpSel == 1 && !gGrps.Find((*idat).group.c_str())) fillgrp = 0;
             if (fillgrp) {
@@ -398,7 +407,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
       int ifmt = oos.find("certfmt=");
       if (ifmt != STR_NPOS) {
          XrdOucString fmt(oos, ifmt + strlen("certfmt="));
-         fmt.erase(fmt.find(' '));
+         fmt.erase(fmt.find('|'));
          if (fmt == "raw") {
 #ifdef HAVE_XRDCRYPTO
             gCertFmt = 0;
@@ -420,7 +429,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
       int igo = oos.find("grpopt=");
       if (igo != STR_NPOS) {
          XrdOucString go(oos, igo + strlen("grpopt="));
-         go.erase(go.find(' '));
+         go.erase(go.find('|'));
          if (go.isdigit()) {
             int grpopt = go.atoi();
             gGrpSel = grpopt / 10;
@@ -443,11 +452,12 @@ int XrdSecgsiVOMSInit(const char *cfg)
       int igr = oos.find("grps=");
       if (igr != STR_NPOS) {
          grps.assign(oos, igr + strlen("grps="));
-         grps.erase(grps.find(' '));
+         grps.erase(grps.find('|'));
          if (grps.length() > 0) {
             int from = 0, flag = 1;
             while ((from = grps.tokenize(gr, from, ',')) != -1) {
                // Analyse tok
+               VOMSSPTTAB(gr);
                gGrps.Add(gr.c_str(), &flag);
                gGrpSel = 1;
             }
@@ -460,11 +470,12 @@ int XrdSecgsiVOMSInit(const char *cfg)
       int ivo = oos.find("vos=");
       if (ivo != STR_NPOS) {
          voss.assign(oos, ivo + strlen("vos="));
-         voss.erase(voss.find(' '));
+         voss.erase(voss.find('|'));
          if (voss.length() > 0) {
             int from = 0, flag = 1;
             while ((from = voss.tokenize(vo, from, ',')) != -1) {
                // Analyse tok
+               VOMSSPTTAB(vo);
                gVOs.Add(vo.c_str(), &flag);
             }
             if (gRequire.length() > 0) gRequire += ";";
@@ -487,7 +498,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
    const char *cfmt[3] = { "raw", "pem base64", "STACK_OF(X509)" };
    const char *cgrs[2] = { "all", "specified group(s)"};
    const char *cgrw[3] = { "first", "last", "all" };
-   PRINT("++++++++++++++++++ VOMS plugi-in ++++++++++++++++++++++++++++++");
+   PRINT("++++++++++++++++++ VOMS plug-in +++++++++++++++++++++++++++++++");
    PRINT("+++ proxy fmt:    "<< cfmt[gCertFmt]);
    PRINT("+++ group option: "<<cgrw[gGrpWhich]<<" of "<<cgrs[gGrpSel]);
    if (gGrpSel == 1) {
