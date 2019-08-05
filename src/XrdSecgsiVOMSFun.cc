@@ -146,8 +146,9 @@ static void FmtExtract(XrdOucString &out, XrdOucString in, const char *tag)
    // Output group format string
    int igf = in.find(tag);
    if (igf != STR_NPOS) {
-      int from = igf + strlen(tag);
-      if (in[from+1] == '"') {
+      size_t len = strlen(tag);
+      int from = igf + len;
+      if (from < len -1 && in[from+1] == '"') {
          out.assign(in, igf + from + 1);
          out.erase(out.find('"'));
       } else {
@@ -438,11 +439,11 @@ int XrdSecgsiVOMSInit(const char *cfg)
                je[i] = oos.length() - 1;
             }
             if (i != NTAG-1) {
-               ss.assign(oos, jb[i], je[i]-jb[i]+1);
+               ss.assign(oos, jb[i], je[i]);
                FmtExtract(*var[i], ss, tag[i]);
                DEBUG(" s:\"" << ss << "\" (" << var[i] <<")");
             } else {
-               var[i]->assign(oos, jb[i], je[i]-jb[i]+1);
+               var[i]->assign(oos, jb[i], je[i]);
                DEBUG(" s:\"" << *var[i] << "\"");
             }
          }
