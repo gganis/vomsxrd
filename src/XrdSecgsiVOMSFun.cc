@@ -143,18 +143,17 @@ static void FmtReplace(XrdSecEntity &ent)
 
 static void FmtExtract(XrdOucString &out, XrdOucString in, const char *tag)
 {
-  // Output group format string
-  int igf = in.find(tag);
-  if (igf != STR_NPOS) {
-    int from = igf + strlen(tag);
-    if (in[from+1] == '"') {
-       out.assign(in, igf + from + 1);
-       out.erase(out.find('"'));
-    } else {
-       out.assign(in, igf + from);
-       out.erase(out.find('|'));
-    }
-  }
+   // Output group format string
+   int igf = in.find(tag);
+   if (igf != STR_NPOS) {
+      int from = igf + strlen(tag);
+      if (in[from+1] == '"') {
+         out.assign(in, igf + from + 1);
+         out.erase(out.find('"'));
+      } else {
+         out.assign(in, igf + from);
+      }
+   }
 }
 
 //
@@ -330,6 +329,10 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
       PRINT("retrieval FAILED: "<< v.ErrorMessage());
    }
 
+   // Fix spaces in XrdSecEntity::name
+   char *sp = 0;
+   while ((sp = strchr(ent.name, ' '))) { *sp = '\t'; }
+
    // Adjust the output format, if required
    FmtReplace(ent);
 
@@ -340,7 +343,7 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
          X509_free(pxy);
       } else if (freestk == 2) {
          while (sk_X509_pop(stk)) { }
-	 sk_X509_free(stk);
+         sk_X509_free(stk);
       }
    }
    
@@ -394,20 +397,61 @@ int XrdSecgsiVOMSInit(const char *cfg)
    //         dbg                    To force verbose mode
    //
    EPNAME("Init");
-
    gDest.logger(&gLogger);
    gsiVOMSTrace = new XrdOucTrace(&gDest);
 
    XrdOucString oos(cfg);
 
-   XrdOucString grps, gr, voss, vo;
+   XrdOucString fmt, go, grps, voss, gfmt, rfmt, vfmt, sdbg;
+   XrdOucString gr, vo, ss;
    if (oos.length() > 0) {
 
+#define NTAG 8
+      XrdOucString &var[8] = { fmt, go, grps, voss, gfmt, rfmt, vfmt, sdbg};
+      const char *tag[] = {"certfmt=", "grpopt=", "grps=", "vos=",
+                           "grpfmt=", "rolefmt=", "vofmt=", "dbg"};
+      int jb[NTAG], je[NTAG];
+
+      // Begin of ranges
+      int i = 0, j = -1;
+      for(; i < NTAG; i++) {
+         jb[i] = -1;
+         int j = oos.find(tag[i]);
+         if (j != STR_NPOS) jb[i] = j;
+         DEBUG("i:"<<i<<" = "<<j);
+      }
+      // End of ranges
+      for(i = 0; i < NTAG; i++) {
+         je[i] = -1;
+         DEBUG("-------------");
+         if (jb[i] > -1) {
+            int k = -1;
+            for(j = 0; j < NTAG; j++) {
+               if (j != i) {
+                  if (jb[j] > jb[i] && (k < 0 || jb[j] < jb[k])) k = j; 
+                  DEBUG("jb[" << j << "] = " << jb[j] <<" jb[ "<< i<<"] = "<<jb[i] << "  ->  k:" << k);
+               }
+            }
+            if (k >= 0) {
+               je[i] = jb[k] - 2;
+            } else {
+               je[i] = oos.length() - 1;
+            }
+            if (i != NTAG-1) {
+               ss.assign(oos, jb[i], je[i]-jb[i]+1);
+               FmtExtract(var[i], ss, tag[i]);
+               DEBUG(" s:\"" << ss << "\" (" << var[i] <<")");
+            } else {
+               var[i].assign(oos, jb[i], je[i]-jb[i]+1);
+               DEBUG(" s:\"" << var[i] << "\"");
+            }
+         }
+         DEBUG("jb["<<i<<"] = "<<jb[i] <<"  --->  "<< "je["<<i<<"] = "<<je[i]);
+      }
+
+
       // Certificate format
-      int ifmt = oos.find("certfmt=");
-      if (ifmt != STR_NPOS) {
-         XrdOucString fmt(oos, ifmt + strlen("certfmt="));
-         fmt.erase(fmt.find('|'));
+      if (fmt.length() > 0) {
          if (fmt == "raw") {
 #ifdef HAVE_XRDCRYPTO
             gCertFmt = 0;
@@ -426,10 +470,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
       }
 
       // Group option
-      int igo = oos.find("grpopt=");
-      if (igo != STR_NPOS) {
-         XrdOucString go(oos, igo + strlen("grpopt="));
-         go.erase(go.find('|'));
+      if (go.length() > 0) {
          if (go.isdigit()) {
             int grpopt = go.atoi();
             gGrpSel = grpopt / 10;
@@ -449,51 +490,41 @@ int XrdSecgsiVOMSInit(const char *cfg)
       }
 
       // Groups selection
-      int igr = oos.find("grps=");
-      if (igr != STR_NPOS) {
-         grps.assign(oos, igr + strlen("grps="));
-         grps.erase(grps.find('|'));
-         if (grps.length() > 0) {
-            int from = 0, flag = 1;
-            while ((from = grps.tokenize(gr, from, ',')) != -1) {
-               // Analyse tok
-               VOMSSPTTAB(gr);
-               gGrps.Add(gr.c_str(), &flag);
-               gGrpSel = 1;
-            }
-            if (gRequire.length() > 0) gRequire += ";";
-            gRequire += "grps="; gRequire += grps;
+      if (grps.length() > 0) {
+         int from = 0, flag = 1;
+         while ((from = grps.tokenize(gr, from, ',')) != -1) {
+            // Analyse tok
+            VOMSSPTTAB(gr);
+            gGrps.Add(gr.c_str(), &flag);
+            gGrpSel = 1;
          }
+         if (gRequire.length() > 0) gRequire += ";";
+         gRequire += "grps="; gRequire += grps;
       }
 
       // VO selection
-      int ivo = oos.find("vos=");
-      if (ivo != STR_NPOS) {
-         voss.assign(oos, ivo + strlen("vos="));
-         voss.erase(voss.find('|'));
-         if (voss.length() > 0) {
-            int from = 0, flag = 1;
-            while ((from = voss.tokenize(vo, from, ',')) != -1) {
-               // Analyse tok
-               VOMSSPTTAB(vo);
-               gVOs.Add(vo.c_str(), &flag);
-            }
-            if (gRequire.length() > 0) gRequire += ";";
-            gRequire += "vos="; gRequire += voss;
+      if (voss.length() > 0) {
+         int from = 0, flag = 1;
+         while ((from = voss.tokenize(vo, from, ',')) != -1) {
+            // Analyse tok
+            VOMSSPTTAB(vo);
+            gVOs.Add(vo.c_str(), &flag);
          }
+         if (gRequire.length() > 0) gRequire += ";";
+         gRequire += "vos="; gRequire += voss;
       }
 
       // Output group format string
-      FmtExtract(gGrpFmt, oos, "grpfmt=");
+      FmtExtract(gGrpFmt, gfmt, "grpfmt=");
       // Output role format string
-      FmtExtract(gRoleFmt, oos, "rolefmt=");
+      FmtExtract(gRoleFmt, rfmt, "rolefmt=");
       // Output vo format string
-      FmtExtract(gVoFmt, oos, "vofmt=");
+      FmtExtract(gVoFmt, vfmt, "vofmt=");
 
       // Verbose mode
-      if (oos.find("dbg") != STR_NPOS) gDebug = 1;
+      if (sdbg == "dbg") gDebug = 1;
    }
-      
+
    // Notify
    const char *cfmt[3] = { "raw", "pem base64", "STACK_OF(X509)" };
    const char *cgrs[2] = { "all", "specified group(s)"};
