@@ -265,7 +265,7 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
       std::vector<voms>::iterator i = v.data.begin();
       for ( ; i != v.data.end(); i++) {
          VOMSDBG("found VO: " << (*i).voname);
-         xvo = (*i).voname; VOMSSPTTAB(xvo);
+         xvo = (*i).voname.c_str(); VOMSSPTTAB(xvo);
          // Filter the VO? (*i) is voms
          if (gVOs.Num() > 0 && !gVOs.Find((*i).voname.c_str())) continue;
          // Save VO name (in tuple mode this is done later, in the loop over groups)
@@ -279,9 +279,9 @@ int XrdSecgsiVOMSFun(XrdSecEntity &ent)
          for (; idat != dat.end(); idat++, ifqa++) {
             VOMSDBG(" ---> group: '"<<(*idat).group<<"', role: '"<<(*idat).role<<"', cap: '" <<(*idat).cap<<"'");
             VOMSDBG(" ---> fqan: '"<<(*ifqa)<<"'");
-            xgrps = (*idat).group; VOMSSPTTAB(xgrps);
-            xrole = (*idat).role; VOMSSPTTAB(xrole);
-            xendor = (*ifqa); VOMSSPTTAB(xendor);
+            xgrps = (*idat).group.c_str(); VOMSSPTTAB(xgrps);
+            xrole = (*idat).role.c_str(); VOMSSPTTAB(xrole);
+            xendor = (*ifqa).c_str(); VOMSSPTTAB(xendor);
             bool fillgrp = 1;
             if (gGrpSel == 1 && !gGrps.Find((*idat).group.c_str())) fillgrp = 0;
             if (fillgrp) {
@@ -407,7 +407,7 @@ int XrdSecgsiVOMSInit(const char *cfg)
    if (oos.length() > 0) {
 
 #define NTAG 8
-      XrdOucString &var[8] = { fmt, go, grps, voss, gfmt, rfmt, vfmt, sdbg};
+      XrdOucString *var[NTAG] = { &fmt, &go, &grps, &voss, &gfmt, &rfmt, &vfmt, &sdbg};
       const char *tag[] = {"certfmt=", "grpopt=", "grps=", "vos=",
                            "grpfmt=", "rolefmt=", "vofmt=", "dbg"};
       int jb[NTAG], je[NTAG];
@@ -439,11 +439,11 @@ int XrdSecgsiVOMSInit(const char *cfg)
             }
             if (i != NTAG-1) {
                ss.assign(oos, jb[i], je[i]-jb[i]+1);
-               FmtExtract(var[i], ss, tag[i]);
-               DEBUG(" s:\"" << ss << "\" (" << var[i] <<")");
+               FmtExtract(*var[i], ss, tag[i]);
+               DEBUG(" s:\"" << ss << "\" (" << *var[i] <<")");
             } else {
-               var[i].assign(oos, jb[i], je[i]-jb[i]+1);
-               DEBUG(" s:\"" << var[i] << "\"");
+               var[i]->assign(oos, jb[i], je[i]-jb[i]+1);
+               DEBUG(" s:\"" << *var[i] << "\"");
             }
          }
          DEBUG("jb["<<i<<"] = "<<jb[i] <<"  --->  "<< "je["<<i<<"] = "<<je[i]);
